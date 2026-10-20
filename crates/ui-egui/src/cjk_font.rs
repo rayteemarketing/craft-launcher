@@ -16,8 +16,8 @@ const MAX_FONT_BYTES: u64 = 100 * 1024 * 1024;
 /// Faces looked at in one collection file (PingFang has 24).
 const MAX_FACES: u32 = 64;
 
-/// The bundled body font (Inter), whose baseline a fallback face is nudged onto.
-const BODY_FONT: &[u8] = include_bytes!("../../../assets/fonts/Inter-Variable.ttf");
+/// The bundled body font (Montserrat), whose baseline a fallback face is nudged onto.
+const BODY_FONT: &[u8] = include_bytes!("../../../assets/fonts/Montserrat-Variable.ttf");
 
 /// `(ascent, ascent + |descent| + leading) / units_per_em` of face `index` in `data`.
 ///
@@ -289,12 +289,13 @@ mod tests {
         assert_eq!(face_index(&[0u8; 64], "PingFang SC"), None);
     }
 
-    /// The baseline nudge reads a face's ascent and height; the reference is Inter's.
+    /// The baseline nudge reads a face's ascent and height; the reference is Montserrat's
+    /// (968 up and 251 down, per 1000 units).
     #[test]
     fn face_metrics_reads_font_metrics() {
         let (ascent, height) = face_metrics(BODY_FONT, 0);
-        assert!((ascent - 0.9688).abs() < 0.005, "{ascent}");
-        assert!((height - 1.21).abs() < 0.005, "{height}");
+        assert!((ascent - 0.968).abs() < 0.005, "{ascent}");
+        assert!((height - 1.219).abs() < 0.005, "{height}");
         assert_eq!(face_metrics(b"not a font", 0), (0.0, 0.0));
     }
 

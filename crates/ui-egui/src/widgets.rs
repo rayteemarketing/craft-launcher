@@ -556,7 +556,7 @@ fn icon_link(ui: &mut Ui, size: f32, link: &IconLink<'_>) {
     }
 }
 
-/// An app's name as the site sets it: Archivo, with "Craft" in the app's colour.
+/// An app's name as the site sets it: the display face, with "Craft" in the app's colour.
 pub fn wordmark(ui: &mut Ui, app: &artcraft_launcher_core::CraftApp, size: f32) -> Response {
     wordmark_in(ui, app, size, true)
 }

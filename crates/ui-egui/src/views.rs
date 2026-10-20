@@ -523,12 +523,12 @@ impl LauncherUi {
         let t = Tokens::get(ui.ctx());
         let now = self.backend.now();
         let mut sort_clicked = None;
-        // The app column's name and tagline line heights, to centre them on the icon.
+        // The app column's name and tagline as laid out (not the fonts' row heights, which can be
+        // fractional where the laid-out lines aren't), to centre them on the icon.
         const TITLE_SIZE: f32 = 16.0;
         const TAGLINE_SIZE: f32 = 12.0;
-        let (title_h, tagline_h) = ui
-            .ctx()
-            .fonts_mut(|f| (f.row_height(&egui::FontId::new(TITLE_SIZE, theme::display())), f.row_height(&egui::FontId::proportional(TAGLINE_SIZE))));
+        const NAME_GAP: f32 = 2.0;
+        let name_block = lines_height(ui, &[&FontId::new(TITLE_SIZE, theme::display()), &FontId::proportional(TAGLINE_SIZE)], NAME_GAP);
         // Rows are divided by hairlines across the whole table, drawn from the first cell and
         // clipped to the scroll area.
         let clip = ui.clip_rect();
@@ -629,11 +629,9 @@ impl LauncherUi {
                                 }
                                 ui.add_space(4.0);
                                 ui.vertical(|ui| {
-                                    const GAP: f32 = 2.0;
-                                    ui.spacing_mut().item_spacing.y = GAP;
+                                    ui.spacing_mut().item_spacing.y = NAME_GAP;
                                     // Name and tagline as one block, centred on the icon.
-                                    let block = title_h + GAP + tagline_h;
-                                    ui.add_space(((ui.available_height() - block) / 2.0).max(0.0));
+                                    ui.add_space(((ui.available_height() - name_block) / 2.0).max(0.0));
                                     widgets::wordmark_in(ui, entry.app, TITLE_SIZE, installed);
                                     ui.add(
                                         egui::Label::new(

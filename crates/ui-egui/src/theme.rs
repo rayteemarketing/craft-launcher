@@ -1,5 +1,5 @@
-//! Colours, type and shapes, matching getartcraft.com: hard edges, hairline rules, Archivo
-//! display type, Inter body text and Geist Mono labels. Widgets read [`Tokens::get`]; nothing
+//! Colours, type and shapes, matching getartcraft.com: hard edges, hairline rules, and Montserrat
+//! for display type, body text and labels. Widgets read [`Tokens::get`]; nothing
 //! hard-codes a colour.
 
 use std::sync::Arc;
@@ -233,10 +233,10 @@ pub fn apply(ctx: &egui::Context, choice: ThemeChoice) {
 /// Height of buttons, inputs and filter cells (the site's medium button).
 pub const CONTROL_H: f32 = 34.0;
 
-/// The site's `.hud-label`: 11 px Geist Mono 500, upper case, 0.15 em apart.
+/// The site's `.hud-label`: 11 px Montserrat 500, upper case, 0.15 em apart.
 pub const HUD_SIZE: f32 = 11.0;
 pub const HUD_SPACING: f32 = HUD_SIZE * 0.15;
-/// Buttons: 11 px Geist Mono 700, upper case, 0.12 em apart.
+/// Buttons: 11 px Montserrat 700, upper case, 0.12 em apart.
 pub const BUTTON_SPACING: f32 = HUD_SIZE * 0.12;
 
 // ---- layout ------------------------------------------------------------------------------------
@@ -264,27 +264,27 @@ pub const DIALOG_TITLE: f32 = 22.0;
 pub const ICON_LINK_PAD: f32 = 6.0;
 pub const ICON_LINK_GAP: f32 = 2.0;
 
-/// Inter 500.
+/// Montserrat 500.
 pub fn medium() -> FontFamily {
     FontFamily::Name("medium".into())
 }
 
-/// Inter 600.
+/// Montserrat 600.
 pub fn semibold() -> FontFamily {
     FontFamily::Name("semibold".into())
 }
 
-/// Archivo 620 at 118 % width: the site's `.font-display` headings and app wordmarks.
+/// Montserrat 620: headings and app wordmarks.
 pub fn display() -> FontFamily {
     FontFamily::Name("display".into())
 }
 
-/// Geist Mono 500: labels and badges.
+/// Montserrat 500: labels and badges.
 pub fn mono() -> FontFamily {
     FontFamily::Name("mono".into())
 }
 
-/// Geist Mono 700: buttons and app number tabs.
+/// Montserrat 700: buttons and app number tabs.
 pub fn mono_bold() -> FontFamily {
     FontFamily::Name("mono-bold".into())
 }
@@ -292,24 +292,22 @@ pub fn mono_bold() -> FontFamily {
 /// A font registered under `name`: its file, its variation coordinates and its family.
 type Face<'a> = (&'a str, &'static [u8], &'a [([u8; 4], f32)], FontFamily);
 
-/// Registers the site's three variable fonts, each at the weights (and width) it uses there.
+/// Registers Montserrat, the one variable font every family draws with, at each family's weight.
 /// `cjk`: the CJK language to draw, whose system font is added behind everything else, or `None`
 /// for a language that needs no CJK font.
 pub fn install_fonts(ctx: &egui::Context, cjk: Option<Lang>) {
-    const INTER: &[u8] = include_bytes!("../../../assets/fonts/Inter-Variable.ttf");
-    const ARCHIVO: &[u8] = include_bytes!("../../../assets/fonts/Archivo-Variable.ttf");
-    const GEIST_MONO: &[u8] = include_bytes!("../../../assets/fonts/GeistMono-Variable.ttf");
+    const MONTSERRAT: &[u8] = include_bytes!("../../../assets/fonts/Montserrat-Variable.ttf");
     let mut fonts = FontDefinitions::default();
     // egui's own fonts stay behind ours, for symbols and emoji ours don't have.
     let fallback: Vec<String> = fonts.families.get(&FontFamily::Proportional).cloned().unwrap_or_default();
     let faces: [Face<'_>; 7] = [
-        ("Inter", INTER, &[(*b"wght", 400.0), (*b"opsz", 14.0)], FontFamily::Proportional),
-        ("Inter-Medium", INTER, &[(*b"wght", 500.0), (*b"opsz", 14.0)], medium()),
-        ("Inter-SemiBold", INTER, &[(*b"wght", 600.0), (*b"opsz", 14.0)], semibold()),
-        ("Archivo-Display", ARCHIVO, &[(*b"wght", 620.0), (*b"wdth", 118.0)], display()),
-        ("GeistMono", GEIST_MONO, &[(*b"wght", 400.0)], FontFamily::Monospace),
-        ("GeistMono-Medium", GEIST_MONO, &[(*b"wght", 500.0)], mono()),
-        ("GeistMono-Bold", GEIST_MONO, &[(*b"wght", 700.0)], mono_bold()),
+        ("Montserrat", MONTSERRAT, &[(*b"wght", 400.0)], FontFamily::Proportional),
+        ("Montserrat-Medium", MONTSERRAT, &[(*b"wght", 500.0)], medium()),
+        ("Montserrat-SemiBold", MONTSERRAT, &[(*b"wght", 600.0)], semibold()),
+        ("Montserrat-Display", MONTSERRAT, &[(*b"wght", 620.0)], display()),
+        ("Montserrat-Mono", MONTSERRAT, &[(*b"wght", 400.0)], FontFamily::Monospace),
+        ("Montserrat-Mono-Medium", MONTSERRAT, &[(*b"wght", 500.0)], mono()),
+        ("Montserrat-Mono-Bold", MONTSERRAT, &[(*b"wght", 700.0)], mono_bold()),
     ];
     for (name, bytes, coords, family) in faces {
         // No subpixel binning: these fonts carry no hinting instructions, so a glyph drawn at a

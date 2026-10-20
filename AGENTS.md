@@ -31,7 +31,7 @@ xtask/                                  cargo xtask ci | wasm | version | ico
 packaging/                              macOS, Windows, Linux, FreeBSD and web packaging scripts
 assets/app-icon/                        the launcher's own icon (master SVG, renders, tray icons)
 assets/app-icons/                       the Craft apps' icons, copied from each app's repo
-assets/fonts/                           Archivo, Inter, Geist Mono (OFL-1.1): getartcraft.com's faces
+assets/fonts/                           Montserrat (the app's one face); Inter, Geist Mono (installer art); all OFL-1.1
 ```
 
 Layering: `core` depends on no other workspace crate and must build for `wasm32-unknown-unknown`.
@@ -76,8 +76,8 @@ settings file must produce an error the user can act on, never a panic. Shared s
 ### Look and feel
 
 The UI matches the apps page on getartcraft.com (`artcraft-website-next` in `artcraft-services`):
-hard square corners, 1 px hairlines instead of shadows, Archivo (620, 118 % width) for headings
-and app names, Inter for body text, upper-case Geist Mono labels and buttons, and the site's
+hard square corners, 1 px hairlines instead of shadows, Montserrat throughout (620 for headings
+and app names, 400–600 for body text, upper-case 500/700 labels and buttons), and the site's
 colour tokens by name (`theme::Tokens`). Build new UI from `widgets.rs`; never hard-code a colour.
 
 Animations follow the OS: with Windows' "Animation effects" off, macOS' "Reduce motion" on, a Linux
