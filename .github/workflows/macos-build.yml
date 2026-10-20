@@ -4,36 +4,64 @@ name: macOS build
 # macOS runner, signed ad-hoc (no Apple certificate) and not notarized. The upstream release
 # workflow needs ArtCraft's signing secrets and a larger runner, so it can't run here.
 #
-# Run it from the Actions tab (or push to the branch below) and download the DMG from the run's
-# artifacts. A downloaded ad-hoc build is quarantined: open it once with System Settings →
+# Every run checks formatting, runs Clippy and the tests (upstream's CI only runs on main), then
+# packages the DMG and keeps it as the run's artifact. A pushed version tag (v0.5.2, …) also
+# publishes a GitHub Release with the DMG and SHA256SUMS.txt, named as upstream's are: that is
+# what this fork's launcher updates itself from. There is no Windows or Linux build here, so
+# those launchers find nothing to update to.
+#
+# A DMG downloaded from the browser is quarantined: open it once with System Settings →
 # Privacy & Security → Open Anyway, or `xattr -dr com.apple.quarantine "/Applications/ArtCraft Launcher.app"`.
+# The launcher's own update downloads without quarantine.
 
 on:
   workflow_dispatch:
   push:
     branches: [fix/drag-lag-montserrat]
+    tags: ["v*"]
 
 permissions:
   contents: read
 
+env:
+  CARGO_TERM_COLOR: always
+
+# A newer push to the branch cancels its older run; a tag's run always finishes.
 concurrency:
   group: macos-build-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
 
 jobs:
   macos:
     name: macOS universal (ad-hoc signed)
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 90
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # v1
         with:
           toolchain: stable
           targets: aarch64-apple-darwin, x86_64-apple-darwin
+          components: clippy, rustfmt
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           key: macos-universal
+      - name: The tag names the version being built
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml | head -n 1)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME doesn't match Cargo.toml's version $version"
+            exit 1
+          fi
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Test
+        run: cargo test --workspace --locked
       - name: Build and package (ad-hoc signed)
         run: packaging/macos/package.sh --arch universal
       - name: Check both architectures are in the app
@@ -41,8 +69,32 @@ jobs:
           bin="target/macos-package/ArtCraft Launcher.app/Contents/MacOS/ArtCraft Launcher"
           lipo -archs "$bin" | tee /dev/stderr | grep -q x86_64
           lipo -archs "$bin" | grep -q arm64
+      - name: Checksums
+        working-directory: dist/release
+        run: |
+          shasum -a 256 -- *.dmg > SHA256SUMS.txt
+          cat SHA256SUMS.txt
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: artcraft-launcher-macos-universal
-          path: dist/release/*.dmg
+          path: |
+            dist/release/*.dmg
+            dist/release/SHA256SUMS.txt
           if-no-files-found: error
+      - name: Publish the release (version tags)
+        if: startsWith(github.ref, 'refs/tags/')
+        working-directory: dist/release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          files=(*.dmg SHA256SUMS.txt)
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # A re-run replaces the files of the release it made before.
+            gh release upload "$tag" "${files[@]}" --clobber
+          else
+            pre=()
+            case "$tag" in *-*) pre=(--prerelease) ;; esac
+            gh release create "$tag" "${files[@]}" --verify-tag --title "ArtCraft Launcher ${tag#v}" ${pre[@]+"${pre[@]}"} \
+              --notes "This fork's ArtCraft Launcher ${tag#v} for macOS (universal, ad-hoc signed, not notarized)."
+          fi
