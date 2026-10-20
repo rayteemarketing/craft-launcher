@@ -1210,8 +1210,9 @@ fn web_build_offers_downloads() {
     assert!(h.query_by_label("Install").is_none());
 }
 
-#[test]
-fn custom_title_bar_has_window_buttons() {
+/// The launcher drawing its own title bar, as on Windows, at 60 frames a second (the default
+/// quarter-second frames would put a double-click's presses too far apart).
+fn frameless_harness() -> Harness<'static, Option<LauncherUi>> {
     struct FramelessHost;
     impl Host for FramelessHost {
         fn title_bar(&self) -> artcraft_launcher_ui_egui::TitleBar {
@@ -1226,7 +1227,7 @@ fn custom_title_bar_has_window_buttons() {
         asked: Vec::new(),
         clock: Rc::new(Cell::new(NOW)),
     });
-    let mut h = Harness::builder().with_size(egui::vec2(1180.0, 1200.0)).build_ui_state(
+    let mut h = Harness::builder().with_size(egui::vec2(1180.0, 1200.0)).with_step_dt(1.0 / 60.0).build_ui_state(
         move |ui, state: &mut Option<LauncherUi>| {
             if state.is_none()
                 && let Some(b) = backend.take()
@@ -1241,6 +1242,40 @@ fn custom_title_bar_has_window_buttons() {
         None,
     );
     h.run_steps(6);
+    h
+}
+
+/// Presses the primary button at `pos` (no release: once the system moves the window it owns
+/// the release) and returns the window commands that frame sent.
+fn press_at(h: &mut Harness<'_, Option<LauncherUi>>, pos: egui::Pos2) -> Vec<egui::ViewportCommand> {
+    h.input_mut().events.push(egui::Event::PointerMoved(pos));
+    h.step();
+    let modifiers = egui::Modifiers::NONE;
+    h.input_mut().events.push(egui::Event::PointerButton { pos, button: egui::PointerButton::Primary, pressed: true, modifiers });
+    h.step();
+    let commands = h.output().viewport_output.values().flat_map(|v| v.commands.clone()).collect();
+    h.input_mut().events.push(egui::Event::PointerButton { pos, button: egui::PointerButton::Primary, pressed: false, modifiers });
+    h.step();
+    commands
+}
+
+#[test]
+fn title_bar_moves_the_window_from_the_press() {
+    let mut h = frameless_harness();
+    // Empty header space between the tabs and the view switch.
+    let empty = egui::pos2(600.0, 24.0);
+    let first = press_at(&mut h, empty);
+    // Handed to the system on the press itself, not after egui has seen the pointer move: the
+    // system's move starts from the cursor, so every pixel before it was lost and the window lagged.
+    assert!(first.contains(&egui::ViewportCommand::StartDrag), "{first:?}");
+    let second = press_at(&mut h, empty);
+    assert!(second.contains(&egui::ViewportCommand::Maximized(true)), "a second quick press maximizes: {second:?}");
+    assert!(!second.contains(&egui::ViewportCommand::StartDrag), "{second:?}");
+}
+
+#[test]
+fn custom_title_bar_has_window_buttons() {
+    let mut h = frameless_harness();
     snapshot(&mut h, "grid-title-bar-dark");
     h.get_by_label("Minimize");
     h.get_by_label("Maximize");

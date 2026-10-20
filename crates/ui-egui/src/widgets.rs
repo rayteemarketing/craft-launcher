@@ -125,16 +125,28 @@ const RESIZE_EDGE: f32 = 5.0;
 
 /// Custom title bars: dragging the header's empty space moves the window, and double-clicking it
 /// maximizes or restores it. Call before drawing the header, so its controls stay on top.
+///
+/// Both act on the press, as a native title bar does. The system's move starts from wherever the
+/// cursor is when it begins, so waiting for egui to see a drag lost the first pixels of every drag
+/// (more on a slow frame): the window stuck, then trailed the cursor by that much. Once the system
+/// owns the press, egui may not see its release, so the second press of a double-click is counted
+/// here rather than with `double_clicked`.
 pub fn title_bar_drag(ui: &mut Ui) {
     let r = ui.max_rect();
     let rect = Rect::from_min_max(r.min + vec2(RESIZE_EDGE, RESIZE_EDGE), r.max - vec2(RESIZE_EDGE, 0.0));
-    let resp = ui.interact(rect, ui.id().with("title-bar"), Sense::click_and_drag());
-    if resp.drag_started_by(egui::PointerButton::Primary) {
-        ui.ctx().send_viewport_cmd(egui::ViewportCommand::StartDrag);
-    }
-    if resp.double_clicked() {
+    let id = ui.id().with("title-bar");
+    let resp = ui.interact(rect, id, Sense::click());
+    let (pressed, now, pos) = ui.input(|i| (i.pointer.primary_pressed(), i.time, i.pointer.interact_pos()));
+    let Some(pos) = pos.filter(|_| pressed && resp.hovered()) else { return };
+    let (delay, dist) = ui.ctx().options(|o| (o.input_options.max_double_click_delay, o.input_options.max_click_dist));
+    let last = ui.data(|d| d.get_temp::<(f64, egui::Pos2)>(id));
+    if last.is_some_and(|(t, p)| now - t <= delay && p.distance(pos) <= dist) {
+        ui.data_mut(|d| d.remove::<(f64, egui::Pos2)>(id));
         let maximized = ui.input(|i| i.viewport().maximized.unwrap_or(false));
         ui.ctx().send_viewport_cmd(egui::ViewportCommand::Maximized(!maximized));
+    } else {
+        ui.data_mut(|d| d.insert_temp(id, (now, pos)));
+        ui.ctx().send_viewport_cmd(egui::ViewportCommand::StartDrag);
     }
 }
 
