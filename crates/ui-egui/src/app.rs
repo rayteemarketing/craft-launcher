@@ -592,12 +592,14 @@ impl LauncherUi {
             ctx.request_repaint_after(Duration::from_millis(50));
         }
 
-        // The bar's separator line is the hairline under the header.
+        // The bars' separator lines are the hairlines under the header and over the footer.
         egui::Panel::top("header")
             .frame(egui::Frame::new().fill(tokens.bg))
             .exact_size(crate::views::HEADER_H)
             .resizable(false)
             .show(ui, |ui| self.header(ui, host.title_bar()));
+        // An empty footer bar: it closes off the bottom of the window as the header does the top.
+        egui::Panel::bottom("footer").frame(egui::Frame::new().fill(tokens.bg)).exact_size(crate::views::FOOTER_H).resizable(false).show(ui, |_| {});
         egui::CentralPanel::default()
             .frame(egui::Frame::new().fill(tokens.bg).inner_margin(egui::Margin { left: 20, right: 20, top: 18, bottom: 0 }))
             .show(ui, |ui| {
@@ -732,7 +734,7 @@ impl LauncherUi {
         }
         ctx.request_repaint_after(Duration::from_millis(250));
         let t = Tokens::get(ctx);
-        let anchor = egui::vec2(-20.0, -20.0);
+        let anchor = egui::vec2(-20.0, -(crate::views::FOOTER_H + 12.0));
         egui::Area::new(egui::Id::new("toasts")).anchor(egui::Align2::RIGHT_BOTTOM, anchor).order(egui::Order::Foreground).show(ctx, |ui| {
             ui.set_max_width(380.0);
             let mut dismiss = None;

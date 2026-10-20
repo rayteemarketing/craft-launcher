@@ -48,6 +48,8 @@ enum Primary {
 
 /// Height of the header bar (the site's nav).
 pub(crate) const HEADER_H: f32 = 48.0;
+/// Height of the footer bar, which is empty.
+pub(crate) const FOOTER_H: f32 = 34.0;
 
 const CARD_MIN_W: f32 = 320.0;
 const CARD_H: f32 = 314.0;
