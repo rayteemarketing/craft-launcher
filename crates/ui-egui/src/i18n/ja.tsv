@@ -108,7 +108,6 @@
 	The app will be removed. Your documents and settings stay.	アプリはアンインストールされます。ドキュメントと設定はそのまま残ります。
 	Uninstall	アンインストール
 	Cancel	キャンセル
-	Checked {ago}	最終確認: {ago}
 	just now	たった今
 	yesterday	昨日
 	{month} {day}, {year}	{year}年{month}{day}日
@@ -122,8 +121,6 @@
 	Unhide App	アプリを再表示
 	Hidden Apps	非表示のアプリ
 	Apps you hid	非表示にしたアプリ
-	Checked {ago} · using {sources}	最終確認: {ago} · 取得元: {sources}
-	{a} and {b}	{a} と {b}
 	Learn more	詳細を見る
 	Minimize	最小化
 	Maximize	最大化
@@ -185,9 +182,6 @@ month	Sep	9月
 month	Oct	10月
 month	Nov	11月
 month	Dec	12月
-	Not checked yet	まだ確認していません
-	GitHub's hourly limit was reached; full details return in {min} min	GitHub の時間あたりの上限に達しました。{min} 分後に詳細が表示されます
-	GitHub limit hit; back in {min} min	GitHub の上限に達しました。{min} 分後に復旧します
 	Installing for {platform}	{platform} にインストール
 	Downloads for {platform}	{platform} 用のダウンロード
 	No downloads for this system	このシステム用のダウンロードはありません
@@ -227,7 +221,6 @@ month	Dec	12月
 	Resume	再開
 	{done} of {total} downloaded	{done} / {total} ダウンロード済み
 	{done} downloaded	{done} ダウンロード済み
-	Checking for updates…	更新を確認中…
 	Downloads the new version, replaces this one and opens it again	新しいバージョンをダウンロードし、現在のバージョンと置き換えて再び開きます
 	Couldn't check for updates: {f}	更新を確認できませんでした: {f}
 	Website (coming soon)	ウェブサイト（近日公開）

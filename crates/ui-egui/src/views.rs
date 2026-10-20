@@ -1,4 +1,4 @@
-//! The header, toolbar, footer, the grid of cards and the table, laid out like the apps page on
+//! The header, toolbar, the grid of cards and the table, laid out like the apps page on
 //! getartcraft.com: hairline cells, mono labels and square controls.
 
 use artcraft_launcher_core::details::AppDetails;
@@ -48,8 +48,6 @@ enum Primary {
 
 /// Height of the header bar (the site's nav).
 pub(crate) const HEADER_H: f32 = 48.0;
-/// Height of the footer bar.
-pub(crate) const FOOTER_H: f32 = 34.0;
 
 const CARD_MIN_W: f32 = 320.0;
 const CARD_H: f32 = 314.0;
@@ -289,53 +287,6 @@ impl LauncherUi {
             });
             ui.add_space(8.0);
         }
-    }
-
-    pub(crate) fn footer(&mut self, ui: &mut Ui) {
-        let t = Tokens::get(ui.ctx());
-        let now = self.backend.now();
-        let status = if self.checking {
-            tl!("Checking for updates…").to_string()
-        } else if let Some(at) = self.settings.last_check {
-            let ago = ago_text(at, now);
-            match self.sources_label() {
-                Some(using) => fmt(tl!("Checked {ago} · using {sources}"), &[("ago", &ago), ("sources", &using)]),
-                None => fmt(tl!("Checked {ago}"), &[("ago", &ago)]),
-            }
-        } else {
-            tl!("Not checked yet").to_string()
-        };
-        // The full notice, and a short one for a narrow window.
-        let notice = self.rate_limited_until.filter(|u| *u > now).map(|until| {
-            let min = ((until - now) / 60).max(1).to_string();
-            let full = fmt(tl!("GitHub's hourly limit was reached; full details return in {min} min"), &[("min", &min)]);
-            let short = fmt(tl!("GitHub limit hit; back in {min} min"), &[("min", &min)]);
-            (format!("· {full}"), format!("· {short}"))
-        });
-        let spacing = ui.spacing().item_spacing.x;
-        // The status takes the full width and is cut short with "…" when the window is narrow.
-        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-            // While GitHub is rate limited, saying so matters more than when we last checked.
-            let avail = ui.available_width();
-            let text = |s: &str| RichText::new(s).size(12.0).color(t.warn);
-            let width = |ui: &Ui, s: &str| {
-                egui::WidgetText::from(text(s)).into_galley(ui, Some(egui::TextWrapMode::Extend), f32::INFINITY, egui::TextStyle::Body).size().x
-                    + spacing
-            };
-            // The short notice once the full one would leave the status under a third.
-            let notice = notice.map(|(full, short)| {
-                let w = width(ui, &full);
-                if w <= avail * 0.7 { (full, None, w) } else { (short.clone(), Some(full), width(ui, &short)) }
-            });
-            let notice_w = notice.as_ref().map_or(0.0, |(_, _, w)| *w);
-            widgets::hud_elided(ui, &status, t.faint, (avail - notice_w).max(avail * 0.3));
-            if let Some((shown, full, _)) = notice {
-                let resp = ui.add(egui::Label::new(text(&shown)).truncate());
-                if let Some(full) = full {
-                    resp.on_hover_text(full);
-                }
-            }
-        });
     }
 
     // ---- grid ----------------------------------------------------------------------------

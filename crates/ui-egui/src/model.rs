@@ -16,8 +16,6 @@ pub struct AppEntry {
     /// Detection has answered at least once.
     pub detected: bool,
     pub job: Option<JobPhase>,
-    /// The service `latest` came from.
-    pub origin: Option<artcraft_launcher_core::protocol::Origin>,
     /// A download waiting to be resumed.
     pub paused: Option<PausedDownload>,
     /// A finished download waiting for another try at installing it.
@@ -26,7 +24,7 @@ pub struct AppEntry {
 
 impl AppEntry {
     pub fn new(app: &'static CraftApp) -> Self {
-        Self { app, latest: None, installed: None, detected: false, job: None, origin: None, paused: None, ready: false }
+        Self { app, latest: None, installed: None, detected: false, job: None, paused: None, ready: false }
     }
 
     pub fn release(&self) -> Option<&Release> {

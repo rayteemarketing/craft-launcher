@@ -104,7 +104,6 @@ pub struct LauncherUi {
     pub(crate) platform: Option<Platform>,
     pub(crate) checking: bool,
     pub(crate) last_source: Option<Source>,
-    pub(crate) rate_limited_until: Option<i64>,
     pub(crate) launcher_update: Option<Release>,
     /// The launcher's own update, while it downloads and installs.
     pub(crate) launcher_job: Option<artcraft_launcher_core::protocol::JobPhase>,
@@ -189,7 +188,6 @@ impl LauncherUi {
             platform,
             checking: false,
             last_source: None,
-            rate_limited_until: None,
             launcher_update: None,
             launcher_job: None,
             restart_requested: false,
@@ -356,12 +354,11 @@ impl LauncherUi {
     /// Returns whether app state changed.
     fn handle(&mut self, ctx: &egui::Context, event: Event) -> bool {
         match event {
-            Event::Latest { app, latest, from } => {
+            Event::Latest { app, latest, .. } => {
                 if let Some(e) = self.entry_mut(&app) {
-                    // A failed check keeps the release we already know about (and where it came from).
+                    // A failed check keeps the release we already know about.
                     if !(matches!(latest, LatestRelease::Failed(_)) && matches!(e.latest, Some(LatestRelease::Found(_)))) {
                         e.latest = Some(latest);
-                        e.origin = Some(from);
                     }
                 }
                 true
@@ -458,11 +455,10 @@ impl LauncherUi {
                 self.checking = true;
                 false
             }
-            Event::CheckFinished { at, source, rate_limited_until } => {
+            Event::CheckFinished { at, source, .. } => {
                 self.checking = false;
                 self.settings.last_check = Some(at);
                 self.last_source = Some(source);
-                self.rate_limited_until = rate_limited_until;
                 true
             }
         }
@@ -596,17 +592,12 @@ impl LauncherUi {
             ctx.request_repaint_after(Duration::from_millis(50));
         }
 
-        // The bars' separator lines are the hairlines under the header and over the footer.
+        // The bar's separator line is the hairline under the header.
         egui::Panel::top("header")
             .frame(egui::Frame::new().fill(tokens.bg))
             .exact_size(crate::views::HEADER_H)
             .resizable(false)
             .show(ui, |ui| self.header(ui, host.title_bar()));
-        egui::Panel::bottom("footer")
-            .frame(egui::Frame::new().fill(tokens.bg).inner_margin(egui::Margin::symmetric(20, 0)))
-            .exact_size(crate::views::FOOTER_H)
-            .resizable(false)
-            .show(ui, |ui| self.footer(ui));
         egui::CentralPanel::default()
             .frame(egui::Frame::new().fill(tokens.bg).inner_margin(egui::Margin { left: 20, right: 20, top: 18, bottom: 0 }))
             .show(ui, |ui| {
@@ -716,29 +707,6 @@ impl LauncherUi {
         self.entry(id).is_some_and(|e| e.status(self.platform, self.caps.manage_apps).is_installed())
     }
 
-    /// "ArtCraft API", "GitHub" or "ArtCraft API and GitHub": the services behind the releases on
-    /// screen right now. `None` until something has loaded.
-    pub(crate) fn sources_label(&self) -> Option<String> {
-        use artcraft_launcher_core::protocol::Origin;
-        let mut api = false;
-        let mut github = false;
-        for e in &self.entries {
-            if matches!(e.latest, Some(LatestRelease::Found(_) | LatestRelease::None)) {
-                match e.origin {
-                    Some(Origin::ArtCraftApi) => api = true,
-                    Some(Origin::GitHub) => github = true,
-                    None => {}
-                }
-            }
-        }
-        match (api, github) {
-            (true, true) => Some(crate::i18n::fmt(tl!("{a} and {b}"), &[("a", Origin::ArtCraftApi.label()), ("b", Origin::GitHub.label())])),
-            (true, false) => Some(Origin::ArtCraftApi.label().to_string()),
-            (false, true) => Some(Origin::GitHub.label().to_string()),
-            (false, false) => None,
-        }
-    }
-
     pub(crate) fn count(&self, filter: Filter) -> usize {
         self.entries.iter().filter(|e| self.in_filter(e, filter)).count()
     }
@@ -764,7 +732,7 @@ impl LauncherUi {
         }
         ctx.request_repaint_after(Duration::from_millis(250));
         let t = Tokens::get(ctx);
-        let anchor = egui::vec2(-20.0, -(crate::views::FOOTER_H + 12.0));
+        let anchor = egui::vec2(-20.0, -20.0);
         egui::Area::new(egui::Id::new("toasts")).anchor(egui::Align2::RIGHT_BOTTOM, anchor).order(egui::Order::Foreground).show(ctx, |ui| {
             ui.set_max_width(380.0);
             let mut dismiss = None;

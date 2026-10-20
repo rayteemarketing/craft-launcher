@@ -130,7 +130,7 @@ pub const CANCELLED: &str = "cancelled";
 /// user dismissed after the download finished (not a failure).
 pub const INSTALL_CANCELLED: &str = "install cancelled";
 
-/// Which service an app's release information came from (the footer names them).
+/// Which service an app's release information came from.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Origin {
     /// ArtCraft's release feed (storyteller-web), which polls GitHub for everyone.

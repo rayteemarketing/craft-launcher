@@ -166,7 +166,6 @@ fn german_switches_persists_and_keeps_install_actions() {
     h.get_by_label("Fertig").click();
     h.run_steps(3);
     h.get_by_label("Bildbearbeitung");
-    h.get_by_label_contains("Zuletzt geprüft: vor 3 Min. · über ArtCraft API");
     h.get_by_label("Auf 0.5.0 aktualisieren");
     // Product names stay in English.
     assert!(h.query_by_label("Launcher").is_none());

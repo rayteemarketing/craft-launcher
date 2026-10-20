@@ -821,7 +821,7 @@ fn the_uninstall_prompt_keeps_its_own_size_after_a_taller_dialog() {
 fn links_to_each_apps_pages() {
     let (mut h, _) = harness(ViewMode::Grid, egui::Theme::Dark, true);
     h.run_steps(6);
-    // Cards: every app links to its repo; the footer has no links of its own.
+    // Cards: every app links to its repo; nothing else on the page links out.
     let shown_cards = h.query_all_by_label("GitHub").count();
     let shown_sites = h.query_all_by_label("Website").count();
     assert!(shown_cards >= 13, "{shown_cards}");
@@ -1125,38 +1125,6 @@ fn automatic_updates_are_disabled_by_default() {
     let commands = sent.borrow().clone();
     assert!(!commands.contains(&Command::Install { app: "photocraft".into() }), "photocraft should not be auto-installed when auto_update is false");
     assert!(!commands.contains(&Command::UpdateLauncher), "launcher should not be auto-updated when auto_update is false");
-}
-
-#[test]
-fn the_footer_names_the_services_behind_what_is_on_screen() {
-    let footer = |extra: Vec<Event>| {
-        let mut evs = events();
-        evs.extend(extra);
-        let sent = Rc::new(RefCell::new(Vec::new()));
-        let mut backend = Some(Fake { events: evs, sent, manage: true, pictures: Rc::default(), asked: Vec::new(), clock: Rc::new(Cell::new(NOW)) });
-        let mut h = Harness::builder().with_size(egui::vec2(1180.0, 1200.0)).build_ui_state(
-            move |ui, state: &mut Option<LauncherUi>| {
-                if state.is_none()
-                    && let Some(b) = backend.take()
-                {
-                    *state = Some(LauncherUi::new(ui.ctx(), Box::new(b), Settings { notify: false, ..Settings::default() }));
-                }
-                if let Some(l) = state.as_mut() {
-                    l.logic(&ui.ctx().clone(), &mut NoHost);
-                    l.ui(ui, &mut NoHost);
-                }
-            },
-            None,
-        );
-        h.run_steps(6);
-        let label =
-            h.get_by_label_contains("Checked ").accesskit_node().label().or_else(|| h.get_by_label_contains("Checked ").accesskit_node().value());
-        label.unwrap_or_default()
-    };
-    assert_eq!(footer(Vec::new()), "Checked 3 min ago · using ArtCraft API");
-    let from_github =
-        vec![Event::Latest { app: "wordcraft".into(), latest: LatestRelease::Found(release("wordcraft", "0.3.1", NOW)), from: Origin::GitHub }];
-    assert_eq!(footer(from_github), "Checked 3 min ago · using ArtCraft API and GitHub");
 }
 
 #[test]
@@ -1508,18 +1476,13 @@ fn the_drawer_and_the_enlarged_picture_survive_any_window_size() {
 }
 
 #[test]
-fn the_rate_limit_notice_fits_beside_the_check_time() {
+fn the_window_shows_no_update_status_at_the_bottom() {
     for width in [720.0, 960.0, 1180.0] {
         let mut evs = events();
         evs.push(Event::CheckFinished { at: NOW - 180, source: Source::GitHubApi, rate_limited_until: Some(NOW + 1800) });
-        let mut backend = Some(Fake {
-            events: evs,
-            sent: Rc::new(RefCell::new(Vec::new())),
-            manage: true,
-            pictures: Rc::default(),
-            asked: Vec::new(),
-            clock: Rc::new(Cell::new(NOW)),
-        });
+        let sent = Rc::new(RefCell::new(Vec::new()));
+        let mut backend =
+            Some(Fake { events: evs, sent: sent.clone(), manage: true, pictures: Rc::default(), asked: Vec::new(), clock: Rc::new(Cell::new(NOW)) });
         let mut h = Harness::builder().with_size(egui::vec2(width, 900.0)).build_ui_state(
             move |ui, state: &mut Option<LauncherUi>| {
                 if state.is_none()
@@ -1535,20 +1498,17 @@ fn the_rate_limit_notice_fits_beside_the_check_time() {
             None,
         );
         h.run_steps(6);
-        snapshot(&mut h, &format!("footer-rate-limited-{width}"));
-        // Full or short, the notice says when GitHub can be asked again.
-        let notice = h.get_by_label_contains("in 30 min").rect();
-        let checked = h.get_by_label_contains("Checked ").rect();
-        // Cut short in a narrow window, but enough of it left to read.
-        assert!(notice.width() >= 120.0 && notice.right() <= width, "{width}: notice {notice:?}");
-        // The footer has no links: the check time and the notice share the row, side by side.
-        for label in ["Website", "GitHub"] {
-            let on_row = h.query_all_by_label(label).filter(|n| (n.rect().center().y - notice.center().y).abs() < 12.0).count();
-            assert_eq!(on_row, 0, "{width}: {label} in the footer");
+        snapshot(&mut h, &format!("no-footer-rate-limited-{width}"));
+        // No footer: neither when the last check ran nor GitHub's limit is written anywhere.
+        for gone in ["Checked ", "Not checked yet", "Checking for updates", "in 30 min", "hourly limit", "GitHub limit"] {
+            assert!(h.query_by_label_contains(gone).is_none(), "{width}: {gone:?} is still on screen");
         }
-        assert!(h.query_by_label_contains("Installing for").is_none(), "{width}: the footer no longer names the platform");
-        assert!(!checked.intersects(notice), "{width}: check time {checked:?} overlaps notice {notice:?}");
-        assert!(checked.right() <= notice.left() + 1.0, "{width}: check time {checked:?} after notice {notice:?}");
+        assert!(h.query_by_label_contains("Installing for").is_none(), "{width}: the window names the platform");
+        // Checking for updates still works from the header.
+        sent.borrow_mut().clear();
+        h.get_by_label("Check for updates").click();
+        h.run_steps(2);
+        assert!(sent.borrow().contains(&Command::CheckForUpdates { force: true }), "{width}: {:?}", sent.borrow());
     }
 }
 

@@ -118,7 +118,6 @@ fn russian_ui_translates_labels_dates_and_messages() {
     h.get_by_label("Редактирование изображений");
     h.get_by_label("Обновить до 0.5.0");
     h.get_by_label_contains("Проверка контрольной суммы…");
-    h.get_by_label_contains("Проверено 3 минуты назад · через ArtCraft API");
     h.get_by_label("Приложение LightCraft обновлено до 0.5.0");
 
     let mut table = harness(ViewMode::Table);

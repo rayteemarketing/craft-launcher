@@ -755,7 +755,7 @@ fn latest_for(
     }
 }
 
-/// Until when the footer says GitHub's limit holds details back: only while it does, that is
+/// Until when GitHub's limit holds details back: only while it does, that is
 /// when this check had to settle for the release pages or saved answers. When the feed (or the
 /// API itself) answered everything, nothing is missing, however recently GitHub said no.
 fn limit_notice(source_used: Source, limited_until: Option<i64>) -> Option<i64> {

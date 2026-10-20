@@ -118,7 +118,6 @@ fn spanish_ui_translates_labels_dates_and_messages() {
     h.get_by_label("Edición de imágenes");
     h.get_by_label("Actualizar a 0.5.0");
     h.get_by_label_contains("Verificando la suma de comprobación…");
-    h.get_by_label_contains("Comprobado hace 3 min · con ArtCraft API");
     h.get_by_label("LightCraft actualizada a 0.5.0");
 
     let mut table = harness(ViewMode::Table);

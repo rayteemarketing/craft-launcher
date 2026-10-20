@@ -106,7 +106,6 @@
 	The app will be removed. Your documents and settings stay.	Eltávolítjuk az alkalmazást. A dokumentumaid és beállításaid megmaradnak.
 	Uninstall	Eltávolítás
 	Cancel	Mégse
-	Checked {ago}	Ellenőrizve: {ago}
 	just now	épp most
 	yesterday	tegnap
 	{month} {day}, {year}	{year}. {month} {day}.
@@ -120,8 +119,6 @@
 	Unhide App	Alkalmazás megjelenítése
 	Hidden Apps	Rejtett alkalmazások
 	Apps you hid	Az általad elrejtett alkalmazások
-	Checked {ago} · using {sources}	Ellenőrizve: {ago} · {sources}
-	{a} and {b}	{a} és {b}
 	Learn more	További információ
 	Minimize	Kis méret
 	Maximize	Teljes méret
@@ -183,9 +180,6 @@ month	Sep	szept.
 month	Oct	okt.
 month	Nov	nov.
 month	Dec	dec.
-	Not checked yet	Még nem történt ellenőrzés
-	GitHub's hourly limit was reached; full details return in {min} min	Elértük a GitHub óránkénti lekérdezési korlátját; a részletes adatok {min} perc múlva lesznek újra elérhetők
-	GitHub limit hit; back in {min} min	GitHub-korlát elérve; újrapróbálás {min} perc múlva
 	Installing for {platform}	Telepítés {platform} rendszerre
 	Downloads for {platform}	Letöltések {platform} rendszerre
 	No downloads for this system	Nincsenek letöltések ehhez a rendszerhez
@@ -225,7 +219,6 @@ month	Dec	dec.
 	Resume	Folytatás
 	{done} of {total} downloaded	{done} / {total} letöltve
 	{done} downloaded	{done} letöltve
-	Checking for updates…	Frissítések keresése…
 	Downloads the new version, replaces this one and opens it again	Letölti és telepíti az új verziót, majd újraindítja az alkalmazást
 	Couldn't check for updates: {f}	Nem sikerült frissítéseket keresni: {f}
 	Website (coming soon)	Webhely (hamarosan)

@@ -106,7 +106,6 @@
 	The app will be removed. Your documents and settings stay.	La aplicación se quitará. Tus documentos y ajustes se conservan.
 	Uninstall	Desinstalar
 	Cancel	Cancelar
-	Checked {ago}	Comprobado {ago}
 	just now	ahora mismo
 	yesterday	ayer
 	{month} {day}, {year}	{day} {month} {year}
@@ -119,8 +118,6 @@
 	Unhide App	Mostrar aplicación
 	Hidden Apps	Aplicaciones ocultas
 	Apps you hid	Aplicaciones que ocultaste
-	Checked {ago} · using {sources}	Comprobado {ago} · con {sources}
-	{a} and {b}	{a} y {b}
 	Learn more	Más información
 	Minimize	Minimizar
 	Maximize	Maximizar
@@ -176,9 +173,6 @@ month	Sep	sept.
 month	Oct	oct.
 month	Nov	nov.
 month	Dec	dic.
-	Not checked yet	Aún sin comprobar
-	GitHub's hourly limit was reached; full details return in {min} min	Se alcanzó el límite por hora de GitHub; todos los detalles estarán disponibles de nuevo en {min} min
-	GitHub limit hit; back in {min} min	Límite de GitHub alcanzado; disponible de nuevo en {min} min
 	Installing for {platform}	Instalación para {platform}
 	Downloads for {platform}	Descargas para {platform}
 	No downloads for this system	No hay descargas para este sistema
@@ -218,7 +212,6 @@ month	Dec	dic.
 	Resume	Reanudar
 	{done} of {total} downloaded	{done} de {total} descargados
 	{done} downloaded	{done} descargados
-	Checking for updates…	Buscando actualizaciones…
 	Downloads the new version, replaces this one and opens it again	Descarga la versión nueva, reemplaza esta y vuelve a abrirla
 	Couldn't check for updates: {f}	No se pudieron buscar actualizaciones: {f}
 	Website (coming soon)	Sitio web (próximamente)

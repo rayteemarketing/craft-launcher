@@ -130,7 +130,6 @@ fn hungarian_ui_translates_labels_dates_and_messages() {
     h.get_by_label("Képszerkesztés");
     h.get_by_label("Frissítés: 0.5.0");
     h.get_by_label_contains("Ellenőrzőösszeg ellenőrzése…");
-    h.get_by_label_contains("Ellenőrizve: 3 perce · ArtCraft API");
     h.get_by_label("LightCraft frissítve. Verzió: 0.5.0");
 
     let mut table = harness(ViewMode::Table);
