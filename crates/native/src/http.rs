@@ -537,6 +537,20 @@ pub(crate) mod tests {
     const DAYS_30: Duration = Duration::from_secs(30 * 86_400);
     const DAYS_7: Duration = Duration::from_secs(7 * 86_400);
 
+    /// An https request gets as far as the TLS handshake and fails there with an error. A TLS
+    /// provider whose cargo feature is off panics at that point instead (ureq's own check), which
+    /// killed the backend thread and left every check spinning forever.
+    #[test]
+    fn https_reaches_the_tls_handshake_without_panicking() {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        // Accept, then hang up: the handshake fails, but only once TLS has been tried.
+        let server = std::thread::spawn(move || drop(listener.accept()));
+        let result = Http::new().unwrap().get_text(&format!("https://127.0.0.1:{port}/"));
+        assert!(result.is_err(), "{result:?}");
+        server.join().unwrap();
+    }
+
     #[test]
     fn cleaning_keeps_current_partial_files_and_removes_leftovers() {
         let dir = tempfile::tempdir().unwrap();

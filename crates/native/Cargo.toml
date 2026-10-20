@@ -32,9 +32,13 @@ ureq = { version = "3.4", default-features = false, features = ["rustls-no-provi
 
 # On Windows, HTTPS through Windows' own TLS (SChannel), which checks each chain against the
 # Windows store as rustls-platform-verifier does. It needs no `ring`, the one dependency with C to
-# compile, so the GNU toolchain builds the launcher without a C compiler. Still no bundled roots.
+# compile, so the GNU toolchain builds the launcher without a C compiler.
+# It has to be `native-tls`: ureq 3.4 only compiles its native-tls connector under that name, so
+# `native-tls-no-default` panics on the first https request. That feature also brings
+# webpki-root-certs (CDLA-Permissive-2.0); it is never read, as `http.rs` asks for the platform's
+# roots (`RootCerts::PlatformVerifier`).
 [target.'cfg(windows)'.dependencies]
-ureq = { version = "3.4", default-features = false, features = ["native-tls-no-default", "gzip"] }
+ureq = { version = "3.4", default-features = false, features = ["native-tls", "gzip"] }
 
 [target.'cfg(unix)'.dependencies]
 flate2 = "1"
