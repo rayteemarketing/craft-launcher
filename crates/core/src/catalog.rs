@@ -147,26 +147,9 @@ pub const SUITE: [CraftApp; 13] = [
     app("gridcraft", "GridCraft", "Spreadsheets and data", [[0x1f, 0x9d, 0x55], [0x12, 0x70, 0x3a], [0x4f, 0xd6, 0x8a]], "storytold/gridcraft"),
 ];
 
-/// ArtCraft's website.
-pub const WEBSITE_URL: &str = "https://getartcraft.com";
 /// The GitHub account every Craft App's repository lives under: the only one the launcher
 /// installs from, whatever the release feed says.
 pub const GITHUB_OWNER: &str = "storytold";
-/// ArtCraft on GitHub: every Craft App's source.
-pub const GITHUB_URL: &str = "https://github.com/storytold";
-/// ArtCraft's social accounts: (service, URL). Shown as small icons, less prominent than Discord.
-pub const SOCIAL: [(&str, &str); 5] = [
-    ("X", "https://x.com/get_artcraft"),
-    ("Instagram", "https://www.instagram.com/officialartcraftstudios"),
-    ("LinkedIn", "https://www.linkedin.com/company/artcraft-ai"),
-    ("YouTube", "https://www.youtube.com/@OfficialArtcraftStudios"),
-    ("TikTok", "https://www.tiktok.com/@artcraft.studios"),
-];
-
-/// The ArtCraft community on Discord.
-pub const DISCORD_URL: &str = "https://discord.gg/artcraft";
-/// Deep link into the Discord application for the ArtCraft server invite.
-pub const DISCORD_APP_URL: &str = "discord://-/invite/artcraft";
 
 /// ArtCraft Launcher itself, described like a Craft App so it can update itself with the same
 /// machinery (asset names `artcraft-launcher-<ver>-…`, bundle id `ai.storyteller.artcraft-launcher`,

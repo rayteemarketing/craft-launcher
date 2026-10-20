@@ -13,8 +13,7 @@
 # Coverage: the whole interface — every menu string and tl! literal (complete_menus = true).
 # Left in English on purpose: product name "ArtCraft Launcher" (and its "Launcher" tag), suite
 # name "Craft App Suite", app names (PhotoCraft, LightCraft, FilmCraft, DesignCraft, VectorCraft,
-# PdfCraft, EffectCraft, WordCraft, DeckCraft, GridCraft, CADCraft, SoundCraft, FigCraft), "GitHub",
-# "Discord".
+# PdfCraft, EffectCraft, WordCraft, DeckCraft, GridCraft, CADCraft, SoundCraft, FigCraft), "GitHub".
 # Shortcut keys keep their key-cap names (Shift, Alt, Ctrl, Cmd, Esc).
 # Trailing "…" (U+2026) must be preserved. Placeholders {name}, {n}, {version}, {count}, {v},
 # {what}, {unit}, {real}, {e} must appear in translation.
@@ -40,7 +39,6 @@
 	Installed version	Zainstalowana wersja
 	Latest version	Najnowsza wersja
 	Newest release	Najnowsze wydanie
-	Discord	Discord
 	GitHub	GitHub
 	Website	Strona
 	Classic apps	Klasyczne aplikacje
@@ -98,8 +96,6 @@
 	Keep running in the tray when the window is closed	Po zamknięciu okna działaj w zasobniku systemowym
 	Show the window on the current desktop	Pokaż okno na bieżącym pulpicie
 	Start ArtCraft Launcher when I log in	Uruchom ArtCraft Launcher po zalogowaniu
-	Community	Społeczność
-	Questions, ideas and news from the ArtCraft team	Pytania, pomysły i nowości od zespołu ArtCraft
 	Appearance	Motyw
 	Quit ArtCraft Launcher	Wyjdź z ArtCraft Launcher
 	Done	Gotowe
@@ -126,7 +122,6 @@
 	Apps you hid	Aplikacje ukryte przez ciebie
 	Checked {ago} · using {sources}	Ostatnio sprawdzono {ago} · przy użyciu {sources}
 	{a} and {b}	{a} i {b}
-	Join the Discord	Dołącz na Discorda
 	Learn more	Więcej
 	Minimize	Minimalizuj
 	Maximize	Maksymalizuj
@@ -194,8 +189,6 @@ month	Dec	gru
 	Installing for {platform}	Instalowanie dla {platform}
 	Downloads for {platform}	Do pobrania dla {platform}
 	No downloads for this system	Brak pobrań dla tego systemu
-	Join the ArtCraft community on Discord	Dołącz do społeczności ArtCraft na Discordzie
-	ArtCraft on {name}	ArtCraft w serwisie {name}
 	Couldn't open {name}: {e}	Nie udało się otworzyć {name}: {e}
 	Download cancelled	Anulowano pobieranie
 	Available to install	Dostępna do instalacji
@@ -332,9 +325,6 @@ filter	Installed	Zainstalowane
 @id	sort.installed	Zainstalowana wersja
 @id	sort.latest	Najnowsza wersja
 @id	sort.released	Najnowsze wydanie
-@id	help.discord	Discord
-@id	help.github	GitHub
-@id	help.website	Strona
 @id	update.check	Sprawdź dostępność aktualizacji
 @id	update.check_auto	Automatycznie sprawdzaj dostępność aktualizacji
 @id	update.notify	Powiadom mnie o aktualizacjach dla zainstalowanych aplikacji
@@ -348,9 +338,6 @@ filter	Installed	Zainstalowane
 # Tray (menu bar) menu and tooltip
 	Show ArtCraft Launcher	Pokaż ArtCraft Launcher
 	Check for Updates	Sprawdź dostępność aktualizacji
-	Visit getartcraft.com	Odwiedź getartcraft.com
-	ArtCraft on GitHub	ArtCraft na GitHubie
-	Join the ArtCraft Discord	Dołącz do Discorda ArtCraft
 @plural	ArtCraft Launcher · {n} update available|ArtCraft Launcher · {n} updates available	ArtCraft Launcher · {n} dostępna aktualizacja|ArtCraft Launcher · {n} dostępne aktualizacje|ArtCraft Launcher · {n} dostępnych aktualizacji
 	Install folder	Folder instalacji
 	Default install folder	Domyślny folder instalacji

@@ -27,7 +27,6 @@
 	Installed version	Versão instalada
 	Latest version	Última versão
 	Newest release	Lançamento mais recente
-	Discord	Discord
 	GitHub	GitHub
 	Website	Site
 	Classic apps	Aplicativos clássicos
@@ -85,8 +84,6 @@
 	Keep running in the tray when the window is closed	Continuar na bandeja do sistema ao fechar a janela
 	Show the window on the current desktop	Mostrar a janela na área de trabalho atual
 	Start ArtCraft Launcher when I log in	Iniciar o ArtCraft Launcher ao fazer login
-	Community	Comunidade
-	Questions, ideas and news from the ArtCraft team	Dúvidas, ideias e novidades da equipe ArtCraft
 	Appearance	Aparência
 	Quit ArtCraft Launcher	Sair do ArtCraft Launcher
 	Done	Concluído
@@ -113,7 +110,6 @@
 	Apps you hid	Aplicativos que você ocultou
 	Checked {ago} · using {sources}	Verificado {ago} · via {sources}
 	{a} and {b}	{a} e {b}
-	Join the Discord	Entrar no Discord
 	Learn more	Saiba mais
 	Minimize	Minimizar
 	Maximize	Maximizar
@@ -181,8 +177,6 @@ month	Dec	dez.
 	Installing for {platform}	Instalando para {platform}
 	Downloads for {platform}	Downloads para {platform}
 	No downloads for this system	Nenhum download disponível para este sistema
-	Join the ArtCraft community on Discord	Entre na comunidade ArtCraft no Discord
-	ArtCraft on {name}	ArtCraft no {name}
 	Couldn't open {name}: {e}	Não foi possível abrir {name}: {e}
 	Download cancelled	Download cancelado
 	Available to install	Disponível para instalar
@@ -305,9 +299,6 @@ filter	Installed	Instalados
 @id	sort.installed	Versão instalada
 @id	sort.latest	Última versão
 @id	sort.released	Lançamento mais recente
-@id	help.discord	Discord
-@id	help.github	GitHub
-@id	help.website	Site
 @id	update.check	Verificar atualizações
 @id	update.check_auto	Verificar atualizações automaticamente
 @id	update.notify	Notificar quando um aplicativo instalado tiver atualização
@@ -321,9 +312,6 @@ filter	Installed	Instalados
 # Tray (menu bar) menu and tooltip
 	Show ArtCraft Launcher	Mostrar ArtCraft Launcher
 	Check for Updates	Verificar atualizações
-	Visit getartcraft.com	Visitar getartcraft.com
-	ArtCraft on GitHub	ArtCraft no GitHub
-	Join the ArtCraft Discord	Entrar no Discord da ArtCraft
 	App details	Detalhes do aplicativo
 	Close (Esc)	Fechar (Esc)
 	Features	Recursos

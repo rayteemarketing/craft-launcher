@@ -46,7 +46,7 @@
     <Property Id="ARPPRODUCTICON" Value="ArtCraftLauncherIcon.exe" />
     <Property Id="ARPURLINFOABOUT" Value="https://getartcraft.com/apps" />
     <Property Id="ARPURLUPDATEINFO" Value="https://github.com/storytold/craft-launcher/releases" />
-    <Property Id="ARPHELPLINK" Value="https://discord.gg/artcraft" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/storytold/craft-launcher" />
 
     <StandardDirectory Id="LocalAppDataFolder">
       <Directory Id="LocalProgramsFolder" Name="Programs">

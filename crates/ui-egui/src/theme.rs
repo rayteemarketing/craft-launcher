@@ -259,10 +259,6 @@ pub const PAGE_COLUMNS_FROM: f32 = 900.0;
 pub const PAGE_TITLE: f32 = 32.0;
 pub const SHEET_TITLE: f32 = 26.0;
 pub const DIALOG_TITLE: f32 = 22.0;
-/// A row of icon links (the footer, Settings): the room round each logo, and the gap between their
-/// targets; neighbours' logos sit `2 × ICON_LINK_PAD + ICON_LINK_GAP` apart.
-pub const ICON_LINK_PAD: f32 = 6.0;
-pub const ICON_LINK_GAP: f32 = 2.0;
 
 /// Montserrat 500.
 pub fn medium() -> FontFamily {

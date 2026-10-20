@@ -158,34 +158,19 @@ fn check_settings_layout() {
         assert!(!done.intersects(quit));
         let title = h.get_all_by_label("Beállítások").last().unwrap().rect();
         assert!(screen.contains_rect(title), "{width}x{height}: title is clipped: {title:?}");
-        // The community links and the appearance choices sit in different columns (stacked, one
-        // under the other), so each is scrolled to in turn.
+        // The Linux install format and the appearance choices sit in different columns (stacked,
+        // one under the other), so each is scrolled to in turn.
         h.get_by_label("Rendszerbeállítás szerint").scroll_to_me();
         h.run_steps(8);
         let theme = h.get_by_label("Rendszerbeállítás szerint").rect();
         assert!(theme.bottom() < done.top(), "appearance controls must scroll above the fixed actions");
-        h.get_by_label("Csatlakozás a Discordhoz").scroll_to_me();
+        // The last line of the right-hand column ("Installing on Linux").
+        let last = "A frissítések mindig az eredeti telepítés csomagformátumát használják.";
+        h.get_by_label(last).scroll_to_me();
         h.run_steps(8);
-        // The footer has the same services, and the cards behind the modal have Webhely and GitHub
-        // links as one 14px line of text; keep only the settings body's buttons (34px) and icons (24px).
-        let discord = h.get_by_label("Csatlakozás a Discordhoz").rect();
-        assert!(screen.contains_rect(discord), "community links must be reachable by scrolling");
-        let mut links = vec![discord];
-        for label in ["Webhely", "GitHub", "X", "Instagram", "LinkedIn", "YouTube", "TikTok"] {
-            let candidates: Vec<_> = h
-                .query_all_by_label(label)
-                .map(|n| n.rect())
-                .filter(|r| r.top() >= discord.top() - 1.0 && r.bottom() < done.top() && r.height() > 20.0)
-                .collect();
-            assert_eq!(candidates.len(), 1, "{width}x{height}: settings link {label}: {candidates:?}");
-            links.extend(candidates);
-        }
-        for (i, r) in links.iter().enumerate() {
-            assert!(screen.contains_rect(*r), "{width}x{height}: link is clipped: {r:?}");
-            for other in links.iter().skip(i + 1) {
-                assert!(!r.intersects(*other), "{width}x{height}: links overlap: {r:?}, {other:?}");
-            }
-        }
+        let note = h.get_by_label(last).rect();
+        assert!(screen.contains_rect(note), "{width}x{height}: the Linux install panel must be reachable by scrolling: {note:?}");
+        assert!(note.bottom() < done.top(), "{width}x{height}: the Linux install panel must scroll above the fixed actions");
         snapshot(&mut h, &format!("settings-hu-{width}x{height}-bottom"));
         h.get_by_label("Nyelv").scroll_to_me();
         h.run_steps(8);

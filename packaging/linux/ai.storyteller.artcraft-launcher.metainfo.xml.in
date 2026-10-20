@@ -28,7 +28,6 @@
   <url type="homepage">https://getartcraft.com/apps</url>
   <url type="bugtracker">https://github.com/storytold/craft-launcher/issues</url>
   <url type="help">https://github.com/storytold/craft-launcher</url>
-  <url type="contact">https://discord.gg/artcraft</url>
   <categories>
     <category>Utility</category>
     <category>PackageManager</category>

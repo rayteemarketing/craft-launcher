@@ -501,61 +501,6 @@ pub fn more_menu<R>(ui: &mut Ui, add_contents: impl FnOnce(&mut Ui) -> R) {
     });
 }
 
-/// ArtCraft's social accounts as a row of small monochrome icons (faint, brighter on hover).
-/// In a right-to-left layout they still read left to right.
-pub fn social_icons(ui: &mut Ui, size: f32) {
-    let links: Vec<IconLink> = artcraft_launcher_core::catalog::SOCIAL
-        .iter()
-        .map(|(name, url)| IconLink { name, label: (*name).to_string(), tip: crate::i18n::fmt(tl!("ArtCraft on {name}"), &[("name", name)]), url })
-        .collect();
-    icon_links(ui, size, &links);
-}
-
-/// One logo that opens a page: `name` picks the picture, `label` is what a screen reader says,
-/// `tip` is the hover text.
-pub struct IconLink<'a> {
-    pub name: &'a str,
-    pub label: String,
-    pub tip: String,
-    pub url: &'a str,
-}
-
-/// The width [`icon_links`] takes for `count` logos `size` wide.
-pub fn icon_links_width(count: usize, size: f32) -> f32 {
-    let n = count as f32;
-    n * (size + 2.0 * crate::theme::ICON_LINK_PAD) + (n - 1.0).max(0.0) * crate::theme::ICON_LINK_GAP
-}
-
-/// A row of logo links, given in reading order; each is `size` wide, spaced by the theme's
-/// `ICON_LINK_PAD` and `ICON_LINK_GAP` wherever the row is. In a right-to-left parent they still
-/// read in the order given.
-pub fn icon_links(ui: &mut Ui, size: f32, links: &[IconLink<'_>]) {
-    ui.scope(|ui| {
-        ui.spacing_mut().item_spacing.x = crate::theme::ICON_LINK_GAP;
-        for link in links_in_order(ui, links) {
-            icon_link(ui, size, link);
-        }
-    });
-}
-
-fn links_in_order<'l, 'a>(ui: &Ui, links: &'l [IconLink<'a>]) -> Vec<&'l IconLink<'a>> {
-    if ui.layout().prefer_right_to_left() { links.iter().rev().collect() } else { links.iter().collect() }
-}
-
-fn icon_link(ui: &mut Ui, size: f32, link: &IconLink<'_>) {
-    let Some(icon) = crate::icons::social(link.name) else { return };
-    let t = Tokens::get(ui.ctx());
-    let pad = crate::theme::ICON_LINK_PAD;
-    let (rect, resp) = ui.allocate_exact_size(vec2(size + 2.0 * pad, size + 2.0 * pad), Sense::click());
-    let color = if resp.hovered() { t.ink_strong } else { t.faint };
-    egui::Image::new(icon).tint(color).paint_at(ui, rect.shrink(pad));
-    resp.widget_info(|| egui::WidgetInfo::labeled(egui::WidgetType::Link, true, &link.label));
-    let resp = resp.on_hover_text(&link.tip).on_hover_cursor(egui::CursorIcon::PointingHand);
-    if resp.clicked() {
-        ui.ctx().open_url(egui::OpenUrl::new_tab(link.url));
-    }
-}
-
 /// An app's name as the site sets it: the display face, with "Craft" in the app's colour.
 pub fn wordmark(ui: &mut Ui, app: &artcraft_launcher_core::CraftApp, size: f32) -> Response {
     wordmark_in(ui, app, size, true)

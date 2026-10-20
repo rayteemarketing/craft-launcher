@@ -312,55 +312,29 @@ impl LauncherUi {
             let short = fmt(tl!("GitHub limit hit; back in {min} min"), &[("min", &min)]);
             (format!("· {full}"), format!("· {short}"))
         });
-        use artcraft_launcher_core::catalog::{GITHUB_URL, SOCIAL, WEBSITE_URL};
-        // Every link is an icon, reading Website, GitHub, Discord, then the social accounts.
-        let named =
-            |name: &'static str, label: &str, url: &'static str| widgets::IconLink { name, label: label.to_string(), tip: label.to_string(), url };
-        let mut links = vec![
-            named("Website", tl!("Website"), WEBSITE_URL),
-            named("GitHub", tl!("GitHub"), GITHUB_URL),
-            widgets::IconLink {
-                name: "Discord",
-                label: tl!("Discord").to_string(),
-                tip: tl!("Join the ArtCraft community on Discord").to_string(),
-                url: self.discord_url,
-            },
-        ];
-        links.extend(SOCIAL.iter().map(|(name, url)| widgets::IconLink {
-            name,
-            label: (*name).to_string(),
-            tip: fmt(tl!("ArtCraft on {name}"), &[("name", name)]),
-            url,
-        }));
-        let icon = 13.0;
         let spacing = ui.spacing().item_spacing.x;
-        // The icons on the right keep their size; the status on the left gets what is left and
-        // is cut short with "…", never drawn under them.
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            widgets::icon_links(ui, icon, &links);
-            ui.add_space(8.0);
-            ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
-                // While GitHub is rate limited, saying so matters more than when we last checked.
-                let avail = ui.available_width();
-                let text = |s: &str| RichText::new(s).size(12.0).color(t.warn);
-                let width = |ui: &Ui, s: &str| {
-                    egui::WidgetText::from(text(s)).into_galley(ui, Some(egui::TextWrapMode::Extend), f32::INFINITY, egui::TextStyle::Body).size().x
-                        + spacing
-                };
-                // The short notice once the full one would leave the status under a third.
-                let notice = notice.map(|(full, short)| {
-                    let w = width(ui, &full);
-                    if w <= avail * 0.7 { (full, None, w) } else { (short.clone(), Some(full), width(ui, &short)) }
-                });
-                let notice_w = notice.as_ref().map_or(0.0, |(_, _, w)| *w);
-                widgets::hud_elided(ui, &status, t.faint, (avail - notice_w).max(avail * 0.3));
-                if let Some((shown, full, _)) = notice {
-                    let resp = ui.add(egui::Label::new(text(&shown)).truncate());
-                    if let Some(full) = full {
-                        resp.on_hover_text(full);
-                    }
-                }
+        // The status takes the full width and is cut short with "…" when the window is narrow.
+        ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+            // While GitHub is rate limited, saying so matters more than when we last checked.
+            let avail = ui.available_width();
+            let text = |s: &str| RichText::new(s).size(12.0).color(t.warn);
+            let width = |ui: &Ui, s: &str| {
+                egui::WidgetText::from(text(s)).into_galley(ui, Some(egui::TextWrapMode::Extend), f32::INFINITY, egui::TextStyle::Body).size().x
+                    + spacing
+            };
+            // The short notice once the full one would leave the status under a third.
+            let notice = notice.map(|(full, short)| {
+                let w = width(ui, &full);
+                if w <= avail * 0.7 { (full, None, w) } else { (short.clone(), Some(full), width(ui, &short)) }
             });
+            let notice_w = notice.as_ref().map_or(0.0, |(_, _, w)| *w);
+            widgets::hud_elided(ui, &status, t.faint, (avail - notice_w).max(avail * 0.3));
+            if let Some((shown, full, _)) = notice {
+                let resp = ui.add(egui::Label::new(text(&shown)).truncate());
+                if let Some(full) = full {
+                    resp.on_hover_text(full);
+                }
+            }
         });
     }
 

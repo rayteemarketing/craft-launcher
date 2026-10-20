@@ -14,7 +14,7 @@
 # Left in English on purpose: product name "ArtCraft Launcher" (and its "Launcher" tag), suite
 # name "Craft App Suite",
 # app names (PhotoCraft, LightCraft, FilmCraft, DesignCraft, VectorCraft, PdfCraft, EffectCraft,
-# WordCraft, DeckCraft, GridCraft, CADCraft, SoundCraft, FigCraft), "GitHub", "Discord".
+# WordCraft, DeckCraft, GridCraft, CADCraft, SoundCraft, FigCraft), "GitHub".
 # Shortcut keys keep their key-cap names (Shift, Alt, Ctrl, Cmd, Esc).
 # Trailing "…" (U+2026) must be preserved. Placeholders {name}, {n}, {version}, {count}, {v},
 # {what}, {unit}, {real}, {e} must appear in translation.
@@ -40,7 +40,6 @@
 	Installed version	Installierte Version
 	Latest version	Neueste Version
 	Newest release	Neueste Veröffentlichung
-	Discord	Discord
 	GitHub	GitHub
 	Website	Website
 	Classic apps	Klassische Apps
@@ -97,8 +96,6 @@
 	Keep running in the tray when the window is closed	Beim Schließen des Fensters im Infobereich weiterlaufen
 	Show the window on the current desktop	Fenster auf dem aktuellen Schreibtisch zeigen
 	Start ArtCraft Launcher when I log in	ArtCraft Launcher bei der Anmeldung starten
-	Community	Community
-	Questions, ideas and news from the ArtCraft team	Fragen, Ideen und Neuigkeiten vom ArtCraft-Team
 	Appearance	Erscheinungsbild
 	Quit ArtCraft Launcher	ArtCraft Launcher beenden
 	Done	Fertig
@@ -125,7 +122,6 @@
 	Apps you hid	Apps, die du ausgeblendet hast
 	Checked {ago} · using {sources}	Zuletzt geprüft: {ago} · über {sources}
 	{a} and {b}	{a} und {b}
-	Join the Discord	Dem Discord beitreten
 	Learn more	Mehr erfahren
 	Minimize	Minimieren
 	Maximize	Maximieren
@@ -193,8 +189,6 @@ month	Dec	Dez.
 	Installing for {platform}	Installation für {platform}
 	Downloads for {platform}	Downloads für {platform}
 	No downloads for this system	Keine Downloads für dieses System
-	Join the ArtCraft community on Discord	Tritt der ArtCraft-Community auf Discord bei
-	ArtCraft on {name}	ArtCraft auf {name}
 	Couldn't open {name}: {e}	{name} konnte nicht geöffnet werden: {e}
 	Download cancelled	Download abgebrochen
 	Available to install	Installierbar
@@ -317,9 +311,6 @@ filter	Installed	Installiert
 @id	sort.installed	Installierte Version
 @id	sort.latest	Neueste Version
 @id	sort.released	Neueste Veröffentlichung
-@id	help.discord	Discord
-@id	help.github	GitHub
-@id	help.website	Website
 @id	update.check	Nach Updates suchen
 @id	update.check_auto	Automatisch nach Updates suchen
 @id	update.notify	Benachrichtigen, wenn es für eine installierte App ein Update gibt
@@ -333,9 +324,6 @@ filter	Installed	Installiert
 # Tray (menu bar) menu and tooltip
 	Show ArtCraft Launcher	ArtCraft Launcher anzeigen
 	Check for Updates	Nach Updates suchen
-	Visit getartcraft.com	getartcraft.com besuchen
-	ArtCraft on GitHub	ArtCraft auf GitHub
-	Join the ArtCraft Discord	Dem ArtCraft-Discord beitreten
 	App details	App-Details
 	Close (Esc)	Schließen (Esc)
 	Features	Funktionen
