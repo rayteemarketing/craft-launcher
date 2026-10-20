@@ -53,8 +53,14 @@ impl Http {
     pub fn new() -> Result<Self, String> {
         // The OS checks each certificate chain itself: Windows fetches roots it hasn't stored yet
         // and trusts what antivirus HTTPS scanning installs. Reading the store ourselves missed
-        // both ("invalid peer certificate: UnknownIssuer").
-        let tls = || ureq::tls::TlsConfig::builder().root_certs(ureq::tls::RootCerts::PlatformVerifier).build();
+        // both ("invalid peer certificate: UnknownIssuer"). On Windows the OS does the TLS too
+        // (SChannel), so the launcher there builds without `ring` and its C.
+        let tls = || {
+            let builder = ureq::tls::TlsConfig::builder().root_certs(ureq::tls::RootCerts::PlatformVerifier);
+            #[cfg(windows)]
+            let builder = builder.provider(ureq::tls::TlsProvider::NativeTls);
+            builder.build()
+        };
         // Chosen once: the proxy environment variables, else the OS proxy setting.
         let proxy = crate::proxy::pick();
         let small = ureq::Agent::config_builder()

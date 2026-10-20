@@ -24,9 +24,17 @@ log = { workspace = true }
 dirs = "6"
 tempfile = "3"
 sha2 = "0.10"
+
 # HTTPS over rustls, with the OS verifying certificates (rustls-platform-verifier). No bundled
 # root list: webpki-roots and webpki-root-certs are CDLA-licensed.
+[target.'cfg(not(windows))'.dependencies]
 ureq = { version = "3.4", default-features = false, features = ["rustls-no-provider", "_ring", "gzip", "platform-verifier"] }
+
+# On Windows, HTTPS through Windows' own TLS (SChannel), which checks each chain against the
+# Windows store as rustls-platform-verifier does. It needs no `ring`, the one dependency with C to
+# compile, so the GNU toolchain builds the launcher without a C compiler. Still no bundled roots.
+[target.'cfg(windows)'.dependencies]
+ureq = { version = "3.4", default-features = false, features = ["native-tls-no-default", "gzip"] }
 
 [target.'cfg(unix)'.dependencies]
 flate2 = "1"
