@@ -636,12 +636,13 @@ mod tests {
         let json = std::fs::read_to_string(path).unwrap();
         let feed = Feed::parse(&json).unwrap();
         let now = feed.last_fetched.unwrap();
-        for app in [app("photocraft"), &LAUNCHER] {
-            let FeedAnswer::Fresh(Some(r)) = feed.answer(app, now) else { panic!("{} wasn't fresh", app.id) };
-            assert!(r.version.is_some(), "{}", app.id);
-            assert!(!r.assets.is_empty() && r.assets.iter().all(|a| a.sha256.is_some()), "{}", app.id);
-            assert!(r.assets.iter().all(|a| a.url.starts_with(&format!("https://github.com/{}/releases/download/", app.repo))));
-        }
+        // The launcher isn't asked: this fork's launcher updates from its own GitHub releases.
+        let app = app("photocraft");
+        let FeedAnswer::Fresh(Some(r)) = feed.answer(app, now) else { panic!("{} wasn't fresh", app.id) };
+        assert!(r.version.is_some(), "{}", app.id);
+        assert!(!r.assets.is_empty() && r.assets.iter().all(|a| a.sha256.is_some()), "{}", app.id);
+        assert!(r.assets.iter().all(|a| a.url.starts_with(&format!("https://github.com/{}/releases/download/", app.repo))));
+        assert_eq!(feed.answer(&LAUNCHER, now), FeedAnswer::AskGitHub);
     }
 
     #[test]

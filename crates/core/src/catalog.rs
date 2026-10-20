@@ -49,7 +49,7 @@ impl CraftApp {
     }
 
     /// Whether the app lives under [`GITHUB_OWNER`], the account ArtCraft's release feed speaks
-    /// for. PdfCraft in this fork doesn't, so only its own GitHub releases count.
+    /// for. PdfCraft and the launcher in this fork don't, so only their own GitHub releases count.
     pub fn from_artcraft(&self) -> bool {
         self.owner().eq_ignore_ascii_case(GITHUB_OWNER)
     }
@@ -162,25 +162,27 @@ pub const SUITE: [CraftApp; 13] = [
 
 /// The GitHub account the Craft Apps' repositories live under, and the only one ArtCraft's
 /// release feed may point at. Each app installs only from the owner in its own `repo`: this
-/// account for every app but PdfCraft, which this fork takes from [`PDFCRAFT_FORK_OWNER`].
+/// account for every app but PdfCraft, which this fork takes from [`FORK_OWNER`].
 pub const GITHUB_OWNER: &str = "storytold";
 
-/// The account PdfCraft is installed from in this fork (`rayteemarketing/pdfcraft`).
-pub const PDFCRAFT_FORK_OWNER: &str = "rayteemarketing";
+/// This fork's own account: PdfCraft (`rayteemarketing/pdfcraft`) and the launcher itself
+/// (`rayteemarketing/craft-launcher`) come from here, never from ArtCraft's.
+pub const FORK_OWNER: &str = "rayteemarketing";
 
 /// ArtCraft Launcher itself, described like a Craft App so it can update itself with the same
 /// machinery (asset names `artcraft-launcher-<ver>-…`, bundle id `ai.storyteller.artcraft-launcher`,
-/// `ArtCraft Launcher.app`). Not part of [`SUITE`].
+/// `ArtCraft Launcher.app`). Not part of [`SUITE`]. This fork updates itself from its own
+/// releases only: upstream's would undo the fork's changes.
 pub const LAUNCHER: CraftApp = app(
     "artcraft-launcher",
     "ArtCraft Launcher",
     "Installs and updates the Craft App Suite",
     [[0x0b, 0x0b, 0x0c], [0x0b, 0x0b, 0x0c], [0xf2, 0xf1, 0xee]],
-    "storytold/craft-launcher",
+    "rayteemarketing/craft-launcher",
 );
 
 /// The launcher's own repo, checked so it can say when a newer launcher is out.
-pub const LAUNCHER_REPO: &str = "storytold/craft-launcher";
+pub const LAUNCHER_REPO: &str = LAUNCHER.repo;
 /// The launcher's own asset stem.
 pub const LAUNCHER_ID: &str = "artcraft-launcher";
 
@@ -197,13 +199,20 @@ mod tests {
         assert_eq!(ids.len(), SUITE.len());
         for a in &SUITE {
             // PdfCraft is this fork's one exception; every other app stays under storytold.
-            let owner = if a.id == "pdfcraft" { PDFCRAFT_FORK_OWNER } else { GITHUB_OWNER };
+            let owner = if a.id == "pdfcraft" { FORK_OWNER } else { GITHUB_OWNER };
             assert_eq!(a.repo, format!("{owner}/{}", a.id));
             assert_eq!(a.owner(), owner);
             assert_eq!(a.from_artcraft(), a.id != "pdfcraft", "{}", a.id);
             assert_eq!(a.name.to_lowercase(), a.id);
         }
-        assert!(LAUNCHER.from_artcraft());
+    }
+
+    #[test]
+    fn the_launcher_updates_itself_from_the_fork() {
+        assert_eq!(LAUNCHER.repo, "rayteemarketing/craft-launcher");
+        assert_eq!(LAUNCHER_REPO, LAUNCHER.repo);
+        assert_eq!(LAUNCHER.owner(), FORK_OWNER);
+        assert!(!LAUNCHER.from_artcraft(), "ArtCraft's feed must never speak for the fork's launcher");
     }
 
     #[test]
