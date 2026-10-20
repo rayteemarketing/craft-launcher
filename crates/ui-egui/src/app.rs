@@ -109,9 +109,8 @@ pub struct LauncherUi {
     pub(crate) launcher_job: Option<artcraft_launcher_core::protocol::JobPhase>,
     /// The new launcher is in place: quit so it can start.
     restart_requested: bool,
-    /// News from ArtCraft's release feed, shown inline until dismissed.
-    pub(crate) announcements: Vec<artcraft_launcher_core::feed::Notice>,
-    /// Alerts from the feed, shown as popups until acknowledged.
+    /// Alerts from the release feed (security notices), shown as popups until acknowledged. The
+    /// feed's news announcements aren't shown.
     pub(crate) alerts: Vec<artcraft_launcher_core::feed::Notice>,
     pub(crate) search: String,
     pub(crate) toasts: Vec<Toast>,
@@ -191,7 +190,6 @@ impl LauncherUi {
             launcher_update: None,
             launcher_job: None,
             restart_requested: false,
-            announcements: Vec::new(),
             alerts: Vec::new(),
             search: String::new(),
             toasts: Vec::new(),
@@ -389,8 +387,7 @@ impl LauncherUi {
                 self.restart_requested = true;
                 false
             }
-            Event::Notices { announcements, alerts } => {
-                self.announcements = announcements;
+            Event::Notices { alerts, .. } => {
                 self.alerts = alerts;
                 false
             }

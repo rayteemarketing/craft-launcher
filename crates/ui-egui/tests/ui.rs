@@ -826,14 +826,14 @@ fn links_to_each_apps_pages() {
     let shown_sites = h.query_all_by_label("Website").count();
     assert!(shown_cards >= 13, "{shown_cards}");
     assert_eq!(shown_sites, 0, "the cards only link to GitHub");
-    // The table's … menu has the app's website and GitHub repo.
+    // The table's … menu has the app's GitHub repo and releases, and no getartcraft.com page.
     let (mut h, _) = harness(ViewMode::Table, egui::Theme::Dark, true);
     h.run_steps(6);
     h.get_all_by_label("…").nth(8).unwrap().click(); // WordCraft
     h.run_steps(3);
     h.get_by_label("GitHub repository");
-    // WordCraft's now-live Website link in the menu.
-    assert!(h.query_all_by_label_contains("Website").count() >= 1);
+    h.get_by_label("All releases");
+    assert_eq!(h.query_all_by_label_contains("Website").count(), 0);
 }
 
 /// Clicks the `n`th widget labelled `label` and returns the URL the app asked to open.
@@ -1014,7 +1014,7 @@ fn the_current_desktop_setting_is_only_offered_where_the_os_has_desktops() {
 }
 
 #[test]
-fn feed_announcements_and_alerts_show_until_dismissed() {
+fn feed_alerts_show_until_acknowledged_and_news_is_not_shown() {
     use artcraft_launcher_core::feed::Notice;
     let notice = |id: &str, title: &str, link: Option<&str>| Notice {
         id: id.into(),
@@ -1052,13 +1052,9 @@ fn feed_announcements_and_alerts_show_until_dismissed() {
     h.run_steps(4);
     assert!(h.query_by_label("Security update").is_none());
     assert!(h.state().as_ref().unwrap().settings.dismissed_notices.contains("x1"));
-    // The announcement stays inline until dismissed.
-    h.get_by_label("CADCraft 1.0 is out");
-    h.get_by_label("Learn more");
-    h.get_all_by_label("Dismiss").next().unwrap().click();
-    h.run_steps(4);
+    // ArtCraft's news isn't shown at all.
     assert!(h.query_by_label("CADCraft 1.0 is out").is_none());
-    assert!(h.state().as_ref().unwrap().settings.dismissed_notices.contains("a1"));
+    assert!(h.query_by_label("Learn more").is_none());
 }
 
 #[test]
@@ -1224,7 +1220,7 @@ fn clicking_a_card_opens_its_details_drawer() {
     h.get_all_by_label_contains("The image editor you already know how to use").last().unwrap();
     h.get_by_label_contains("Curves and type layers · 1/4");
     // The links the page offers as buttons of their own.
-    h.get_by_label("Website ↗");
+    assert!(h.query_by_label("Website ↗").is_none(), "no getartcraft.com page");
     h.get_by_label("GitHub ↗");
     h.get_by_label("Releases ↗");
     // The picture arrows wrap around, and the thumbnails jump.
