@@ -2402,8 +2402,8 @@ mod tests {
             let unrelated = std::fs::read_to_string(&plist).unwrap().replace("ai.storyteller.photocraft", "com.example.other");
             std::fs::write(&plist, &unrelated).unwrap();
             let image = dmg(dir.path(), "0.6.0");
-            let result =
-                install_dmg(photocraft(), &image, None, Some(dir.path()), false, &Paths::under(dir.path()), &Expect { signer: Signer::Unchecked, version: None });
+            let expect = Expect { signer: Signer::Unchecked, version: None };
+            let result = install_dmg(photocraft(), &image, None, Some(dir.path()), false, &Paths::under(dir.path()), &expect);
             assert!(result.unwrap_err().contains("already exists"));
             assert_eq!(std::fs::read_to_string(plist).unwrap(), unrelated);
             assert_eq!(std::fs::read(placed.join("Contents/MacOS/PhotoCraft")).unwrap(), b"0.5.0");
@@ -2497,7 +2497,8 @@ mod tests {
             let image = dmg(dir.path(), "0.6.0");
             let release = Release { tag: "v0.6.0".into(), version: version::parse("0.6.0"), ..Release::default() };
 
-            let result = install_dmg(photocraft(), &image, Some(&existing), None, false, &Paths::under(dir.path()), &Expect::release(photocraft(), &release));
+            let expect = Expect::release(photocraft(), &release);
+            let result = install_dmg(photocraft(), &image, Some(&existing), None, false, &Paths::under(dir.path()), &expect);
             assert_eq!(result, Err("the app isn't signed by its developer, so it wasn't installed".into()));
             assert_eq!(std::fs::read_to_string(current.join("Contents/MacOS/PhotoCraft")).unwrap(), "0.5.0");
             assert_eq!(

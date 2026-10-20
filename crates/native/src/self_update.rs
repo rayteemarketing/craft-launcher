@@ -238,8 +238,8 @@ pub fn update(
         #[cfg(target_os = "macos")]
         Install::MacApp(bundle) => {
             let existing = Installed { version: None, source: InstallSource::MacApp, location: bundle.display().to_string(), package: None };
-            let placed =
-                install::macos::install_dmg(&LAUNCHER, &file, Some(&existing), None, false, paths, &install::macos::Expect::release(&LAUNCHER, release));
+            let expect = install::macos::Expect::release(&LAUNCHER, release);
+            let placed = install::macos::install_dmg(&LAUNCHER, &file, Some(&existing), None, false, paths, &expect);
             let _ = std::fs::remove_file(&file);
             let placed = placed?;
             relaunch_after_exit(pid, &[Path::new("/usr/bin/open").as_os_str(), placed.as_os_str()])
