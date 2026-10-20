@@ -1260,6 +1260,44 @@ mod tests {
         assert_eq!(used, Some(Source::GitHubApi));
     }
 
+    #[test]
+    fn pdfcraft_comes_from_its_own_repo_never_the_feed() {
+        /// GitHub, recording which repos it was asked about.
+        #[derive(Default)]
+        struct Asked(Mutex<Vec<String>>);
+        impl ReleaseSource for Asked {
+            fn latest(&self, repo: &str, _pre: bool) -> Answer {
+                self.0.lock().unwrap().push(repo.to_string());
+                Answer { latest: LatestRelease::None, source: Source::GitHubApi }
+            }
+            fn cached(&self, _repo: &str, _pre: bool) -> Option<LatestRelease> {
+                None
+            }
+            fn rate_limited_until(&self) -> Option<i64> {
+                None
+            }
+            fn save(&self) {}
+        }
+        // The feed vouches for upstream's PdfCraft 0.9.0, fresh and well-formed.
+        let feed = Feed::parse(
+            r#"{"release_info": {"apps": {
+            "photocraft": {"repo": "storytold/photocraft", "latest_release": {"tag": "v0.6.0"}, "app_last_fetched": "2026-10-09T13:00:00Z"},
+            "pdfcraft": {"repo": "storytold/pdfcraft", "latest_release": {"tag": "v0.9.0"}, "app_last_fetched": "2026-10-09T13:00:00Z"}
+        }}}"#,
+        )
+        .unwrap();
+        let github = Asked::default();
+        let shared = shared();
+        let pdf = CraftApp::by_id("pdfcraft").unwrap();
+        let (_, from, used) = latest_for(pdf, Some(&feed), LOADED, &github, &shared, false, false, NOW);
+        assert_eq!((from, used), (Origin::GitHub, Some(Source::GitHubApi)));
+        assert_eq!(*github.0.lock().unwrap(), ["rayteemarketing/pdfcraft"]);
+        // PhotoCraft still comes from the feed, without asking GitHub.
+        let (_, from, used) = latest_for(CraftApp::by_id("photocraft").unwrap(), Some(&feed), LOADED, &github, &shared, false, false, NOW);
+        assert_eq!((from, used), (Origin::ArtCraftApi, Some(Source::Feed)));
+        assert_eq!(github.0.lock().unwrap().len(), 1);
+    }
+
     const APP: &str = "photocraft";
 
     /// A PhotoCraft release with one file per platform and format, so whichever this machine

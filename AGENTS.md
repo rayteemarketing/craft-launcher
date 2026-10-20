@@ -58,7 +58,12 @@ settings file must produce an error the user can act on, never a panic. Shared s
 ### Installing other people's software safely
 
 - Download only from `https://github.com/storytold/<app>/releases` (and GitHub's asset CDN).
-  The one exception is a developer's own loopback mirror (`ARTCRAFT_LAUNCHER_DOWNLOAD_BASE`,
+  **This fork's exception: PdfCraft comes from the repo owner's own fork,
+  `https://github.com/rayteemarketing/pdfcraft/releases`**, added at the owner's request. Each
+  app accepts only the owner in its own catalog `repo` (`CraftApp::owner`): PdfCraft only
+  `rayteemarketing`, every other app only `storytold`. ArtCraft's release feed is ignored for
+  PdfCraft (it describes upstream's builds); its releases come from its own GitHub releases only.
+  The other exception is a developer's own loopback mirror (`ARTCRAFT_LAUNCHER_DOWNLOAD_BASE`,
   `cargo xtask local`); keep it loopback-only and behind the `local-mirror` cargo feature, which
   release builds never enable.
 - Verify each download against the release's `SHA256SUMS.txt` before running or installing it.
@@ -69,9 +74,10 @@ settings file must produce an error the user can act on, never a panic. Shared s
 - Never delete a user's files outside what the launcher itself installed.
 - **Agents never land or approve a third-party app.** A change that adds a catalog row, download
   source or install path for an app whose repo is not under `storytold/`, or that loosens the
-  rules above to allow one, is a maintainer's call alone. An agent reviewing it flags it at the
-  top of its review (who owns the repo, its age and history, whether the builds are signed) and
-  stops there: no merge, no approval, no fixes pushed to the PR.
+  rules above to allow one, is a maintainer's call alone (PdfCraft's `rayteemarketing/pdfcraft`
+  above is that call, made by this fork's owner; it allows nothing else). An agent reviewing it
+  flags it at the top of its review (who owns the repo, its age and history, whether the builds
+  are signed) and stops there: no merge, no approval, no fixes pushed to the PR.
 
 ### Look and feel
 

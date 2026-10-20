@@ -281,6 +281,36 @@ mod tests {
     }
 
     #[test]
+    fn each_app_accepts_only_its_own_owner() {
+        use crate::catalog::CraftApp;
+        let pdf = CraftApp::by_id("pdfcraft").unwrap().repo;
+        let photo = CraftApp::by_id("photocraft").unwrap().repo;
+        let msi = "pdfcraft-0.9.1-windows-x64.msi";
+        let json = |url: &str| api_json(url).replace("photocraft-0.5.0-macos-universal.dmg", msi);
+        // PdfCraft: the fork's downloads, release page, redirect and sums route are accepted…
+        let fork = format!("https://github.com/rayteemarketing/pdfcraft/releases/download/v0.9.1/{msi}");
+        let r = parse_github_release(&json(&fork), pdf).unwrap();
+        assert_eq!(r.assets.len(), 1);
+        assert_eq!(r.assets[0].url, fork);
+        assert_eq!(tag_from_redirect("https://github.com/rayteemarketing/pdfcraft/releases/tag/v0.9.1", pdf).as_deref(), Some("v0.9.1"));
+        let sums = parse_sha256sums(&format!("{HASH}  {msi}\n"));
+        let r = release_from_sums(pdf, "v0.9.1", &sums);
+        assert_eq!(r.assets[0].url, fork);
+        assert_eq!(r.sums_asset().unwrap().url, "https://github.com/rayteemarketing/pdfcraft/releases/download/v0.9.1/SHA256SUMS.txt");
+        assert_eq!(r.html_url, "https://github.com/rayteemarketing/pdfcraft/releases/tag/v0.9.1");
+        // …upstream's are not.
+        let upstream = format!("https://github.com/storytold/pdfcraft/releases/download/v0.9.1/{msi}");
+        assert!(parse_github_release(&json(&upstream), pdf).unwrap().assets.is_empty());
+        assert_eq!(tag_from_redirect("https://github.com/storytold/pdfcraft/releases/tag/v0.9.1", pdf), None);
+        // Every other app: storytold only, never the fork's account.
+        let elsewhere = "https://github.com/rayteemarketing/photocraft/releases/download/v0.5.0/photocraft-0.5.0-macos-universal.dmg";
+        assert!(parse_github_release(&api_json(elsewhere), photo).unwrap().assets.is_empty());
+        assert_eq!(tag_from_redirect("https://github.com/rayteemarketing/photocraft/releases/tag/v0.5.0", photo), None);
+        let ours = "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-0.5.0-macos-universal.dmg";
+        assert_eq!(parse_github_release(&api_json(ours), photo).unwrap().assets.len(), 1);
+    }
+
+    #[test]
     fn file_names_cannot_escape() {
         for bad in ["", "..", "a/b", "a\\b", ".hidden", "c:x", "x\u{0}"] {
             assert!(!valid_file_name(bad), "{bad:?}");

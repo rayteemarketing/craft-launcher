@@ -143,8 +143,12 @@ impl Feed {
 
     /// The repo to ask GitHub about for `app`, following the feed's repo renames. Always under
     /// [`GITHUB_OWNER`]: the feed can move an app within ArtCraft's account, never out of it.
+    /// An app from another account (PdfCraft in this fork) is never moved: its `repo` is final.
     pub fn repo_for(&self, app: &CraftApp) -> String {
         let mut repo = app.repo.to_string();
+        if !app.from_artcraft() {
+            return repo;
+        }
         // Follow a chain of moves (a → b → c), without looping forever.
         for _ in 0..8 {
             match self.repo_renames.iter().find(|r| r.old_repo.eq_ignore_ascii_case(&repo)) {
@@ -157,6 +161,12 @@ impl Feed {
 
     /// What the feed says about `app` at `now`.
     pub fn answer(&self, app: &CraftApp, now: i64) -> FeedAnswer {
+        // The feed reports ArtCraft's own repositories. For an app from another account (PdfCraft
+        // in this fork) it would describe upstream's builds, so only the app's own GitHub
+        // releases count.
+        if !app.from_artcraft() {
+            return FeedAnswer::AskGitHub;
+        }
         let Some(entry) = self.apps.get(app.id) else { return FeedAnswer::AskGitHub };
         let Some(fetched_at) = entry.fetched_at else { return FeedAnswer::AskGitHub };
         // A timestamp from the future (clock skew) counts as just now; one too old doesn't count.
@@ -562,6 +572,39 @@ mod tests {
         assert!(feed.repo_renames.is_empty(), "{:?}", feed.repo_renames);
         assert_eq!(feed.repo_for(app("photocraft")), "storytold/photocraft");
         assert_eq!(feed.answer(app("photocraft"), NOW), FeedAnswer::AskGitHub);
+    }
+
+    #[test]
+    fn pdfcraft_never_comes_from_the_feed() {
+        // A fresh feed entry for PdfCraft describes upstream's builds: GitHub (the fork) decides,
+        // whatever repo, links or renames the entry carries.
+        let entry = |repo: &str| {
+            format!(
+                r#""pdfcraft": {{ "repo": {repo}, "app_last_fetched": "2026-10-09T13:00:00Z",
+                "latest_release": {{ "tag": "v0.9.0", "assets": [{{ "name": "pdfcraft-0.9.0-windows-x64.msi", "size_bytes": 1,
+                  "download_url": "https://github.com/{}/releases/download/v0.9.0/pdfcraft-0.9.0-windows-x64.msi", "sha256": "{HASH}" }}] }} }},
+                "soundcraft":"#,
+                repo.trim_matches('"').replace("null", "storytold/pdfcraft")
+            )
+        };
+        for repo in [r#""storytold/pdfcraft""#, r#""rayteemarketing/pdfcraft""#, "null"] {
+            let feed = Feed::parse(&sample().replace(r#""soundcraft":"#, &entry(repo))).unwrap();
+            assert!(feed.apps.contains_key("pdfcraft"), "{repo}");
+            assert_eq!(feed.answer(app("pdfcraft"), NOW), FeedAnswer::AskGitHub, "{repo}");
+            assert_eq!(feed.clone().with_mirror("http://127.0.0.1:8787/").answer(app("pdfcraft"), NOW), FeedAnswer::AskGitHub, "{repo}");
+            // Every other app still comes from the feed as before.
+            assert!(matches!(feed.answer(app("photocraft"), NOW), FeedAnswer::Fresh(Some(_))));
+            assert_eq!(feed.answer(app("soundcraft"), NOW), FeedAnswer::Fresh(None));
+        }
+        // A rename can't move it either, not even back to storytold.
+        let renamed = sample().replace(
+            "\"repo_renames\": []",
+            r#""repo_renames": [{"old_name": "storytold/pdfcraft", "new_name": "storytold/pdfcraft-app", "renamed_at": null}]"#,
+        );
+        let feed = Feed::parse(&renamed).unwrap();
+        assert_eq!(feed.repo_renames.len(), 1);
+        assert_eq!(feed.repo_for(app("pdfcraft")), "rayteemarketing/pdfcraft");
+        assert_eq!(Feed::default().repo_for(app("pdfcraft")), "rayteemarketing/pdfcraft");
     }
 
     #[test]

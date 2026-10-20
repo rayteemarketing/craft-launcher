@@ -866,17 +866,21 @@ fn all_opened(h: &mut Harness<'_, Option<LauncherUi>>, label: &str) -> Vec<Strin
 fn links_open_the_right_pages() {
     let (mut h, _) = harness(ViewMode::Grid, egui::Theme::Dark, true);
     h.run_steps(6);
-    // Each card's own repo, and no ArtCraft-wide links.
+    // Each card's own repo (PdfCraft's is the fork's), and no ArtCraft-wide links.
     let github = all_opened(&mut h, "GitHub");
     assert!(github.contains(&"https://github.com/storytold/photocraft".to_string()), "{github:?}");
-    assert!(github.iter().all(|url| url.starts_with("https://github.com/storytold/")), "{github:?}");
+    let repos: Vec<String> = SUITE.iter().map(|a| a.repo_url()).collect();
+    assert!(github.iter().all(|url| repos.contains(url)), "{github:?}");
+    if github.iter().any(|url| url.contains("pdfcraft")) {
+        assert!(github.contains(&"https://github.com/rayteemarketing/pdfcraft".to_string()), "{github:?}");
+    }
     assert!(all_opened(&mut h, "Website").is_empty());
     // The … menu.
     h.get_all_by_label("…").next().unwrap().click();
     h.run_steps(3);
     // The first card is the first installed app by name.
     let url = click_opens(&mut h, "All releases").unwrap_or_default();
-    assert!(url.starts_with("https://github.com/storytold/") && url.ends_with("/releases"), "{url}");
+    assert!(SUITE.iter().any(|a| url == a.releases_url()), "{url}");
 }
 
 #[test]

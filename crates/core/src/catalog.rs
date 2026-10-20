@@ -42,6 +42,18 @@ impl CraftApp {
         format!("https://github.com/{}", self.repo)
     }
 
+    /// The GitHub account in [`Self::repo`]: the only one this app's releases, downloads and
+    /// redirects may come from.
+    pub fn owner(&self) -> &'static str {
+        self.repo.split_once('/').map_or(self.repo, |(owner, _)| owner)
+    }
+
+    /// Whether the app lives under [`GITHUB_OWNER`], the account ArtCraft's release feed speaks
+    /// for. PdfCraft in this fork doesn't, so only its own GitHub releases count.
+    pub fn from_artcraft(&self) -> bool {
+        self.owner().eq_ignore_ascii_case(GITHUB_OWNER)
+    }
+
     /// The app's page on getartcraft.com.
     pub fn website(&self) -> String {
         format!("https://getartcraft.com/apps/{}", self.id)
@@ -98,7 +110,8 @@ pub const SUITE: [CraftApp; 13] = [
             "PdfCraft",
             "Reading, organizing and protecting PDFs",
             [[0x12, 0xa5, 0x8a], [0x0a, 0x75, 0x63], [0x3f, 0xd6, 0xb8]],
-            "storytold/pdfcraft",
+            // This fork's one exception: PdfCraft comes from the owner's own fork, not ArtCraft's.
+            "rayteemarketing/pdfcraft",
         )
     },
     app(
@@ -147,9 +160,13 @@ pub const SUITE: [CraftApp; 13] = [
     app("gridcraft", "GridCraft", "Spreadsheets and data", [[0x1f, 0x9d, 0x55], [0x12, 0x70, 0x3a], [0x4f, 0xd6, 0x8a]], "storytold/gridcraft"),
 ];
 
-/// The GitHub account every Craft App's repository lives under: the only one the launcher
-/// installs from, whatever the release feed says.
+/// The GitHub account the Craft Apps' repositories live under, and the only one ArtCraft's
+/// release feed may point at. Each app installs only from the owner in its own `repo`: this
+/// account for every app but PdfCraft, which this fork takes from [`PDFCRAFT_FORK_OWNER`].
 pub const GITHUB_OWNER: &str = "storytold";
+
+/// The account PdfCraft is installed from in this fork (`rayteemarketing/pdfcraft`).
+pub const PDFCRAFT_FORK_OWNER: &str = "rayteemarketing";
 
 /// ArtCraft Launcher itself, described like a Craft App so it can update itself with the same
 /// machinery (asset names `artcraft-launcher-<ver>-…`, bundle id `ai.storyteller.artcraft-launcher`,
@@ -179,9 +196,23 @@ mod tests {
         ids.dedup();
         assert_eq!(ids.len(), SUITE.len());
         for a in &SUITE {
-            assert_eq!(a.repo, format!("storytold/{}", a.id));
+            // PdfCraft is this fork's one exception; every other app stays under storytold.
+            let owner = if a.id == "pdfcraft" { PDFCRAFT_FORK_OWNER } else { GITHUB_OWNER };
+            assert_eq!(a.repo, format!("{owner}/{}", a.id));
+            assert_eq!(a.owner(), owner);
+            assert_eq!(a.from_artcraft(), a.id != "pdfcraft", "{}", a.id);
             assert_eq!(a.name.to_lowercase(), a.id);
         }
+        assert!(LAUNCHER.from_artcraft());
+    }
+
+    #[test]
+    fn pdfcraft_comes_from_the_fork() {
+        let pdf = CraftApp::by_id("pdfcraft").unwrap();
+        assert_eq!(pdf.repo, "rayteemarketing/pdfcraft");
+        assert_eq!(pdf.releases_url(), "https://github.com/rayteemarketing/pdfcraft/releases");
+        assert_eq!(pdf.repo_url(), "https://github.com/rayteemarketing/pdfcraft");
+        assert_eq!(CraftApp::by_id("wordcraft").unwrap().repo_url(), "https://github.com/storytold/wordcraft");
     }
 
     #[test]

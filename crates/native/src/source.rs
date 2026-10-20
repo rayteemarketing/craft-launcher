@@ -179,3 +179,41 @@ impl ReleaseSource for GitHubSource {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use artcraft_launcher_core::platform::{Arch, Os, PackageKind, Platform, pick_asset};
+    use artcraft_launcher_core::version::Version;
+    use artcraft_launcher_core::{CraftApp, version};
+
+    use super::*;
+
+    /// Live: PdfCraft resolves from the fork's own releases, through the API and the quota-free
+    /// pages route alike, to a Windows x64 MSI vouched for by its `SHA256SUMS.txt`
+    /// (`cargo test -p artcraft-launcher-native pdfcraft -- --ignored`).
+    #[test]
+    #[ignore = "needs network access"]
+    fn pdfcraft_resolves_from_the_fork() {
+        let pdf = CraftApp::by_id("pdfcraft").unwrap();
+        assert_eq!(pdf.repo, "rayteemarketing/pdfcraft");
+        let dir = tempfile::tempdir().unwrap();
+        let http = Http::new().unwrap();
+        let source = GitHubSource::new(Http::new().unwrap(), dir.path().join("cache.json"));
+        let windows = Platform { os: Os::Windows, arch: Arch::X64 };
+        let api = source.ask_api(pdf.repo, false).unwrap().expect("API rate-limited");
+        let pages = source.ask_pages(pdf.repo).unwrap();
+        for answer in [api, pages] {
+            let LatestRelease::Found(r) = answer.latest else { panic!("{:?}: no release", answer.source) };
+            let ver = r.version.clone().unwrap();
+            assert!(!version::is_newer(&Version::new(0, 9, 1), &ver), "{ver}");
+            let (msi, kind) = pick_asset(&r, &pdf.stems().collect::<Vec<_>>(), windows, &[PackageKind::Msi]).unwrap();
+            assert_eq!(kind, PackageKind::Msi);
+            assert_eq!(msi.name, format!("pdfcraft-{ver}-windows-x64.msi"));
+            assert!(msi.url.starts_with("https://github.com/rayteemarketing/pdfcraft/releases/download/"), "{}", msi.url);
+            let sums = release::parse_sha256sums(&http.get_text(&r.sums_asset().unwrap().url).unwrap().unwrap());
+            let listed = sums.iter().find(|(_, n)| *n == msi.name).map(|(h, _)| h.clone()).unwrap();
+            assert_eq!(msi.sha256.as_deref().unwrap_or(&listed), listed);
+            eprintln!("{:?}: {} {} sha256 {listed}", answer.source, r.name, msi.name);
+        }
+    }
+}
